@@ -11,6 +11,7 @@ export const AppDataSource = new DataSource({
   password: ENV.DATABASE_PASSWORD as EnvironmentKeys,
   database: ENV.DATABASE_NAME as EnvironmentKeys,
   entities: [join(__dirname, '../**/*.entity{.ts,.js}')],
+  migrations: [join(__dirname, '../../migrations/*{.ts,.js}')],
   migrationsRun: false,
   logging: true,
 });
