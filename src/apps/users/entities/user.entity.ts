@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { TABLE_NAMES } from 'src/common/constants';
 import { BaseEntity } from 'src/common/models/base.entity';
 import { PasswordUtil } from 'src/common/utils/password.utils';
@@ -15,9 +16,11 @@ export class User extends BaseEntity {
   email: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @Column({ nullable: true })
+  @Exclude()
   transactionPin?: string;
 
   @BeforeInsert()
