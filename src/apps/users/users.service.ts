@@ -1,26 +1,47 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable, ConflictException } from '@nestjs/common';
+import { UsersRepository } from './users.repository';
+import { IUsersService } from './interface/users.service.interface';
+import { EntityManager } from 'typeorm';
+import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/user.dto';
 
 @Injectable()
-export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+export class UsersService extends IUsersService {
+  constructor(private readonly usersRepo: UsersRepository) {
+    super();
   }
 
-  findAll() {
-    return `This action returns all users`;
+  private async ensureEmailNotExists(email: string, manager?: EntityManager) {
+    const existingUser = await this.usersRepo
+      .findOneBy({ email }, ['email'], manager)
+      .catch(() => null);
+    if (existingUser) {
+      throw new ConflictException('Email already registered');
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async createUser(
+    data: CreateUserDto,
+    manager?: EntityManager,
+  ): Promise<User> {
+    await this.ensureEmailNotExists(data.email, manager);
+
+    return this.usersRepo.createUser(data, manager);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findByEmail(email: string, manager?: EntityManager): Promise<User> {
+    return this.usersRepo.findOneBy({ email }, undefined, manager);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async findById(id: string, manager?: EntityManager): Promise<User> {
+    return this.usersRepo.findOneBy({ id }, undefined, manager);
+  }
+
+  async updateUser(
+    id: string,
+    data: Partial<User>,
+    manager?: EntityManager,
+  ): Promise<User> {
+    return this.usersRepo.updateUser(id, data, manager);
   }
 }
