@@ -1,11 +1,8 @@
 // users.providers.ts
-import { DataSource } from 'typeorm';
+import { createRepositoryProvider } from 'src/database/repository.provider';
 import { User } from './entities/user.entity';
+import { REPOSITORY_TOKENS } from 'src/common/constants';
 
 export const usersProviders = [
-  {
-    provide: 'USER_REPOSITORY',
-    useFactory: (dataSource: DataSource) => dataSource.getRepository(User),
-    inject: ['DATA_SOURCE'],
-  },
+  createRepositoryProvider(REPOSITORY_TOKENS.USER, User),
 ];
