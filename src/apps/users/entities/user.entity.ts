@@ -1,6 +1,7 @@
 import { TABLE_NAMES } from 'src/common/constants';
 import { BaseEntity } from 'src/common/models/base.entity';
-import { Column, Entity } from 'typeorm';
+import { PasswordUtil } from 'src/common/utils/password.utils';
+import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 
 @Entity(TABLE_NAMES.USERS)
 export class User extends BaseEntity {
@@ -18,4 +19,16 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   transactionPin?: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+    if (this.password) {
+      this.password = await PasswordUtil.hash(this.password);
+    }
+  }
+
+  async comparePassword(plain: string): Promise<boolean> {
+    return PasswordUtil.compare(plain, this.password);
+  }
 }
