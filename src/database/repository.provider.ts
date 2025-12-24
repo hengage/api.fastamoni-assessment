@@ -1,4 +1,4 @@
-import { DATA_SOURCE, REPOSITORY_TOKENS } from 'src/config/common/constants';
+import { DATA_SOURCE, REPOSITORY_TOKENS } from 'src/common/constants';
 import { DataSource, ObjectType } from 'typeorm';
 
 /**
