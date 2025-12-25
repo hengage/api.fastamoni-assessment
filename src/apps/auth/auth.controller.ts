@@ -1,18 +1,19 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { ResponseMessage } from 'src/common/decorators/response.decorator';
+import { ValidateRequestGuard } from 'src/common/guards/validate-request.guard';
 import { User } from '../users/entities/user.entity';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/auth.dto';
 import { LocalAuthGuard } from './guards/local.guard';
-import { ResponseMessage } from 'src/common/decorators/response.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(new ValidateRequestGuard(LoginDto), LocalAuthGuard)
   @ResponseMessage('Login successful')
-  login(@Request() req: { user: User }, @Body() _: LoginDto) {
+  login(@Request() req: { user: User }) {
     return this.authService.login(req.user);
   }
 }
