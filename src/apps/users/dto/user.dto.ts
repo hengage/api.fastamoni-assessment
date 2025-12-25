@@ -13,16 +13,14 @@ export class CreateUserDto {
   @IsNotEmpty()
   email: string;
 
-  @IsNotEmpty()
   @MaxLength(100)
   @IsString()
-  @Transform(({ value }: { value: string }) => value.trim())
+  @IsNotEmpty()
   firstName: string;
 
   @MaxLength(100)
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }: { value: string }) => value.trim())
   lastName: string;
 
   @MinLength(8)
