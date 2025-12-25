@@ -1,6 +1,10 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { setupSwagger } from './config/swagger.config';
+import { ENV } from './config/env';
+import { EnvironmentKeys } from './config/config.service';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,8 +18,16 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new ResponseInterceptor(app.get(Reflector)),
+  );
+  app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT ?? 3000);
+  if (ENV.NODE_ENV === 'development') {
+    setupSwagger(app);
+  }
+
+  await app.listen(ENV.PORT as EnvironmentKeys);
 }
-bootstrap();
+bootstrap().catch((e) => console.error('Error bootstrapping app:', e));
