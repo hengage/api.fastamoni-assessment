@@ -1,3 +1,7 @@
+export const TABLE_NAMES = {
+  USERS: 'users',
+};
+
 export const DATA_SOURCE = 'DATA_SOURCE';
 
 export const REPOSITORY_TOKENS = {
