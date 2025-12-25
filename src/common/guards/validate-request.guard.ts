@@ -7,7 +7,7 @@ import {
   Type,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
+import { validate, ValidationError } from 'class-validator';
 import { Request } from 'express';
 
 /**
@@ -37,19 +37,34 @@ import { Request } from 'express';
 export class ValidateRequestGuard<T> implements CanActivate {
   constructor(@Inject('DTO_CLASS') private readonly dtoClass: Type<T>) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
-    const dto = plainToInstance(this.dtoClass, request.body);
-    const errors = await validate(dto as object);
-
+  private async validateDto(dto: any): Promise<void> {
+    const errors: ValidationError[] = await validate(dto as object);
     if (errors.length > 0) {
       const errorMessage = errors
         .map((error) => Object.values(error.constraints || {}))
         .flat()
         .join(', ');
-
       throw new BadRequestException(errorMessage);
     }
+  }
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<Request>();
+
+    // Handle empty request body
+    if (
+      !request.body ||
+      Object.keys(request.body as Record<string, unknown>).length === 0
+    ) {
+      // Create an empty instance to trigger validation
+      const emptyDto = new this.dtoClass();
+      await this.validateDto(emptyDto);
+
+      return true;
+    }
+
+    const dto = plainToInstance(this.dtoClass, request.body);
+    await this.validateDto(dto);
     return true;
   }
 }
