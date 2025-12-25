@@ -1,17 +1,16 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { ApiCreatedResponse } from '@nestjs/swagger';
+import { ResponseMessage } from 'src/common/decorators/response.decorator';
+import { UserResponseDto } from './dto/user-response.dto';
 import { CreateUserDto } from './dto/user.dto';
 import { UsersService } from './users.service';
-import { ApiResponse } from '@nestjs/swagger';
-import { ApiResponseDto } from 'src/common/dtos/api-response.dto';
-import { User } from './entities/user.entity';
-import { ResponseMessage } from 'src/common/decorators/response.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @ApiResponse({ type: () => ApiResponseDto<User> })
+  @ApiCreatedResponse({ type: () => UserResponseDto })
   @ResponseMessage('User created')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
