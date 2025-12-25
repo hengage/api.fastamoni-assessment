@@ -19,10 +19,6 @@ export class User extends BaseEntity {
   @Exclude()
   password: string;
 
-  @Column({ nullable: true })
-  @Exclude()
-  transactionPin?: string;
-
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
