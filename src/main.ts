@@ -5,6 +5,7 @@ import { setupSwagger } from './config/swagger.config';
 import { ENV } from './config/env';
 import { EnvironmentKeys } from './config/config.service';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,7 @@ async function bootstrap() {
     new ClassSerializerInterceptor(app.get(Reflector)),
     new ResponseInterceptor(app.get(Reflector)),
   );
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.setGlobalPrefix('api');
 
   if (ENV.NODE_ENV === 'development') {
