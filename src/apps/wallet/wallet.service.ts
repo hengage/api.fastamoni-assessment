@@ -1,26 +1,73 @@
-import { Injectable } from '@nestjs/common';
-import { CreateWalletDto } from './dto/create-wallet.dto';
-import { UpdateWalletDto } from './dto/update-wallet.dto';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { EntityManager } from 'typeorm';
+import { WalletRepository } from './wallet.repository';
+import { Wallet } from './entities/wallet.entity';
 
 @Injectable()
 export class WalletService {
-  create(createWalletDto: CreateWalletDto) {
-    return 'This action adds a new wallet';
+  constructor(private readonly walletRepo: WalletRepository) {}
+
+  async createWallet(userId: string, manager?: EntityManager): Promise<Wallet> {
+    return this.walletRepo.createWallet(
+      {
+        user: { id: userId },
+      },
+      manager,
+    );
   }
 
-  findAll() {
-    return `This action returns all wallet`;
+  async getWalletByUserId<K extends Keys<Wallet>>(
+    userId: string,
+    select?: K[],
+    manager?: EntityManager,
+  ): Promise<Wallet> {
+    return this.walletRepo.findOneBy({ user: { id: userId } }, select, manager);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} wallet`;
+  async setTransactionPin(
+    walletId: string,
+    pin: string,
+    manager?: EntityManager,
+  ): Promise<void> {
+    await this.walletRepo.updateWallet(
+      walletId,
+      { transactionPin: pin },
+      manager,
+    );
   }
 
-  update(id: number, updateWalletDto: UpdateWalletDto) {
-    return `This action updates a #${id} wallet`;
+  async validateTransactionPin(
+    userId: string,
+    pin: string,
+    manager?: EntityManager,
+  ): Promise<void> {
+    const wallet = await this.getWalletByUserId(
+      userId,
+      ['transactionPin'],
+      manager,
+    );
+    if (!(await wallet.validateTransactionPin(pin))) {
+      throw new BadRequestException('Invalid transaction pin');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} wallet`;
+  async credit(walletId: string, amount: number, manager?: EntityManager) {
+    return this.walletRepo.credit(walletId, amount, manager);
+  }
+
+  async debit(walletId: string, amount: number, manager?: EntityManager) {
+    await this.ensureSufficientBalance(walletId, amount, manager);
+    return this.walletRepo.debit(walletId, amount, manager);
+  }
+
+  async ensureSufficientBalance(
+    walletId: Wallet['id'],
+    amount: number,
+    manager?: EntityManager,
+  ) {
+    const wallet = await this.getWalletByUserId(walletId, ['balance'], manager);
+    if (wallet.balance < amount) {
+      throw new BadRequestException('Insufficient wallet balance');
+    }
   }
 }

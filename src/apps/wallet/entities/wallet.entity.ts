@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { User } from 'src/apps/users/entities/user.entity';
 import { TABLE_NAMES } from 'src/common/constants';
 import { BaseEntity } from 'src/common/models/base.entity';
@@ -9,18 +10,23 @@ import {
   JoinColumn,
   BeforeInsert,
   BeforeUpdate,
+  DeepPartial,
 } from 'typeorm';
 
 @Entity({ name: TABLE_NAMES.WALLET })
 export class Wallet extends BaseEntity {
-  @OneToOne(() => User, { eager: false, onDelete: 'CASCADE' })
+  @OneToOne(() => User, (user) => user.wallet, {
+    eager: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
-  user: User;
+  user: DeepPartial<User>;
 
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   balance: number;
 
   @Column({ nullable: true })
+  @Exclude()
   transactionPin?: string;
 
   @BeforeInsert()

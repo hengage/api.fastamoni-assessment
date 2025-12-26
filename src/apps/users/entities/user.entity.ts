@@ -1,8 +1,9 @@
 import { Exclude } from 'class-transformer';
+import { Wallet } from 'src/apps/wallet/entities/wallet.entity';
 import { TABLE_NAMES } from 'src/common/constants';
 import { BaseEntity } from 'src/common/models/base.entity';
 import { PasswordUtil } from 'src/common/utils/password.utils';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToOne } from 'typeorm';
 
 @Entity(TABLE_NAMES.USERS)
 export class User extends BaseEntity {
@@ -18,6 +19,9 @@ export class User extends BaseEntity {
   @Column()
   @Exclude()
   password: string;
+
+  @OneToOne(() => Wallet, (wallet) => wallet.user)
+  wallet: Wallet;
 
   @BeforeInsert()
   @BeforeUpdate()
