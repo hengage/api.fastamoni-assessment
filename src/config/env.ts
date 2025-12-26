@@ -12,6 +12,7 @@ const envConfig: Record<EnvironmentKeys, EnvConfig> = {
   // Required strings
   [EnvironmentKeys.NODE_ENV]: {},
   [EnvironmentKeys.JWT_SECRET]: {},
+  [EnvironmentKeys.JWT_EXPIRES_IN]: {},
   [EnvironmentKeys.DATABASE_USERNAME]: {},
   [EnvironmentKeys.DATABASE_PASSWORD]: {},
   [EnvironmentKeys.DATABASE_NAME]: {},

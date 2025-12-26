@@ -3,6 +3,7 @@ import { Msgs } from 'src/common/utils/messages.utils';
 export enum EnvironmentKeys {
   NODE_ENV = 'NODE_ENV',
   JWT_SECRET = 'JWT_SECRET',
+  JWT_EXPIRES_IN = 'JWT_EXPIRES_IN',
   PORT = 'PORT',
   DATABASE_USERNAME = 'DATABASE_USERNAME',
   DATABASE_PASSWORD = 'DATABASE_PASSWORD',

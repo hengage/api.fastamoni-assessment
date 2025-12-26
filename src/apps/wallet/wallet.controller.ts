@@ -1,15 +1,18 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { ResponseMessage } from 'src/common/decorators/response.decorator';
 import { WalletService } from './wallet.service';
-import { ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
 import { SetTransactionPinResponseDto } from './dto/wallet-response.dto';
 import { SetTransactionPinDto } from './dto/wallet.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 
 @Controller('wallet')
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
   @Post(':id/transaction-pin')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiCreatedResponse({ type: () => SetTransactionPinResponseDto })
   @ResponseMessage('Transaction pin updated')
   async setTransactionPin(
