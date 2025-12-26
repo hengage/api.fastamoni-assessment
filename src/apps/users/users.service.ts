@@ -1,11 +1,12 @@
-import { Injectable, ConflictException } from '@nestjs/common';
-import { UsersRepository } from './users.repository';
-import { IUsersService } from './interface/users.service.interface';
-import { EntityManager } from 'typeorm';
-import { User } from './entities/user.entity';
-import { CreateUserDto } from './dto/user.dto';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { AtomicTransactionService } from 'src/database/atomic-transaction.service';
+import { EntityManager } from 'typeorm';
 import { WalletService } from '../wallet/wallet.service';
+import { CreateUserDto } from './dto/user.dto';
+import { User } from './entities/user.entity';
+import { IUsersService } from './interface/users.service.interface';
+import { UsersRepository } from './users.repository';
+import { Msgs } from 'src/common/utils/messages.utils';
 
 @Injectable()
 export class UsersService extends IUsersService {
@@ -22,7 +23,7 @@ export class UsersService extends IUsersService {
       .findOneBy({ email }, ['email'], manager)
       .catch(() => null);
     if (existingUser) {
-      throw new ConflictException('Email already registered');
+      throw new ConflictException(Msgs.users.EMAIL_ALREADY_EXISTS());
     }
   }
 

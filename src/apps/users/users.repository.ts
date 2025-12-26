@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { DATA_SOURCE } from 'src/common/constants';
 import {
   DataSource,
   EntityManager,
@@ -6,12 +7,13 @@ import {
   Repository,
 } from 'typeorm';
 import { User } from './entities/user.entity';
+import { Msgs } from 'src/common/utils/messages.utils';
 
 @Injectable()
 export class UsersRepository {
   private readonly userRepo: Repository<User>;
 
-  constructor(@Inject('DATA_SOURCE') private readonly dataSource: DataSource) {
+  constructor(@Inject(DATA_SOURCE) private readonly dataSource: DataSource) {
     this.userRepo = this.dataSource.getRepository(User);
   }
 
@@ -38,7 +40,7 @@ export class UsersRepository {
     });
 
     if (!user) {
-      throw new NotFoundException(`User not found`);
+      throw new NotFoundException(Msgs.users.NOT_FOUND());
     }
 
     return user;
@@ -49,7 +51,7 @@ export class UsersRepository {
     const user = await repo.findOne({ where: { email } });
 
     if (!user) {
-      throw new NotFoundException(`User with email "${email}" not found`);
+      throw new NotFoundException(Msgs.users.NOT_FOUND_BY_EMAIL(email));
     }
 
     return user;

@@ -1,3 +1,5 @@
+import { Msgs } from 'src/common/utils/messages.utils';
+
 export enum EnvironmentKeys {
   NODE_ENV = 'NODE_ENV',
   JWT_SECRET = 'JWT_SECRET',
@@ -24,7 +26,7 @@ export class ConfigService {
     const value = process.env[key];
 
     if (!value && required) {
-      throw new Error(`Missing environment variable: ${key}`);
+      throw new Error(Msgs.common.MISSING_ENV(key));
     }
 
     return value ? parseV(value) : (fallback as T);
