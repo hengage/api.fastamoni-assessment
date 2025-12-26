@@ -1,6 +1,7 @@
 export const TABLE_NAMES = {
   USERS: 'users',
-};
+  WALLET: 'wallets',
+} as const;
 
 export const DATA_SOURCE = 'DATA_SOURCE';
 
