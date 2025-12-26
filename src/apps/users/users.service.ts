@@ -4,10 +4,16 @@ import { IUsersService } from './interface/users.service.interface';
 import { EntityManager } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/user.dto';
+import { AtomicTransactionService } from 'src/database/atomic-transaction.service';
+import { WalletService } from '../wallet/wallet.service';
 
 @Injectable()
 export class UsersService extends IUsersService {
-  constructor(private readonly usersRepo: UsersRepository) {
+  constructor(
+    private readonly usersRepo: UsersRepository,
+    private readonly walletService: WalletService,
+    private readonly atomicTransaction: AtomicTransactionService,
+  ) {
     super();
   }
 
@@ -20,13 +26,14 @@ export class UsersService extends IUsersService {
     }
   }
 
-  async createUser(
-    data: CreateUserDto,
-    manager?: EntityManager,
-  ): Promise<User> {
-    await this.ensureEmailNotExists(data.email, manager);
+  async createUser(data: CreateUserDto): Promise<User> {
+    return this.atomicTransaction.runInAtomic(async (txnManager) => {
+      await this.ensureEmailNotExists(data.email, txnManager);
+      const user = await this.usersRepo.createUser(data, txnManager);
+      await this.walletService.createWallet(user.id, txnManager);
 
-    return this.usersRepo.createUser(data, manager);
+      return user;
+    });
   }
 
   async findByEmail(email: string, manager?: EntityManager): Promise<User> {

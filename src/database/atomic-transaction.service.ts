@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { DATA_SOURCE } from 'src/common/constants';
 import { DataSource, EntityManager, QueryRunner } from 'typeorm';
 
 @Injectable()
 export class AtomicTransactionService {
-  constructor(
-    private readonly dataSource: DataSource,
-    private readonly logger: Logger,
-  ) {}
+  private readonly logger = new Logger(AtomicTransactionService.name);
+
+  constructor(@Inject(DATA_SOURCE) private readonly dataSource: DataSource) {}
 
   private createRunner(): QueryRunner {
     return this.dataSource.createQueryRunner();

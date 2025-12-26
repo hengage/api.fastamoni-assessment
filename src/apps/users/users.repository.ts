@@ -6,7 +6,6 @@ import {
   Repository,
 } from 'typeorm';
 import { User } from './entities/user.entity';
-import { DatabaseLockMode, Keys } from 'src/types';
 
 @Injectable()
 export class UsersRepository {
