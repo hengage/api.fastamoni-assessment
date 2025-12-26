@@ -1,5 +1,3 @@
-import { DATABASE_LOCK_MODES } from './common/constants';
-
 type Keys<T> = keyof T;
 
 declare type JSONValue =
