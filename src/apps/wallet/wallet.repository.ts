@@ -7,6 +7,7 @@ import {
   Repository,
 } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
+import { Msgs } from 'src/common/utils/messages.utils';
 
 @Injectable()
 export class WalletRepository {
@@ -37,7 +38,7 @@ export class WalletRepository {
     });
 
     if (!wallet) {
-      throw new NotFoundException(`Wallet not found`);
+      throw new NotFoundException(Msgs.common.NOT_FOUND('Wallet'));
     }
 
     return wallet;

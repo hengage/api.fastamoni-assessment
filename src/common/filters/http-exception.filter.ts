@@ -8,6 +8,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { Msgs } from '../utils/messages.utils';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -19,8 +20,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Internal server error';
-    let error = 'Internal Server Error';
+    let message = Msgs.common.SERVER_ERROR();
+    let error = Msgs.common.SERVER_ERROR();
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
