@@ -27,9 +27,14 @@ export class WalletRepository {
     cond: FindOptionsWhere<Wallet> | FindOptionsWhere<Wallet>[],
     select?: K[],
     manager?: EntityManager,
+    lock?: { mode: DatabaseLockMode },
   ): Promise<Wallet> {
     const repo = manager?.getRepository(Wallet) ?? this.walletRepo;
-    const wallet = await repo.findOne({ where: cond, select });
+    const wallet = await repo.findOne({
+      where: cond,
+      ...(select && { select }),
+      ...(lock && { lock }),
+    });
 
     if (!wallet) {
       throw new NotFoundException(`Wallet not found`);

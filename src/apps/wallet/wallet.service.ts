@@ -1,7 +1,9 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, FindOptionsWhere } from 'typeorm';
 import { WalletRepository } from './wallet.repository';
 import { Wallet } from './entities/wallet.entity';
+import { User } from '../users/entities/user.entity';
+import { DATABASE_LOCK_MODES } from 'src/common/constants';
 
 @Injectable()
 export class WalletService {
@@ -51,23 +53,47 @@ export class WalletService {
     }
   }
 
-  async credit(walletId: string, amount: number, manager?: EntityManager) {
-    return this.walletRepo.credit(walletId, amount, manager);
+  async credit(
+    walletId: Wallet['id'],
+    amount: number,
+    manager?: EntityManager,
+  ) {
+    const wallet = await this.getWalletWithWriteLock(
+      { id: walletId },
+      ['id'],
+      manager,
+    );
+    return this.walletRepo.credit(wallet.id, amount, manager);
   }
 
-  async debit(walletId: string, amount: number, manager?: EntityManager) {
+  async debit(walletId: Wallet['id'], amount: number, manager?: EntityManager) {
     await this.ensureSufficientBalance(walletId, amount, manager);
     return this.walletRepo.debit(walletId, amount, manager);
   }
 
   async ensureSufficientBalance(
-    walletId: Wallet['id'],
+    userId: User['id'],
     amount: number,
     manager?: EntityManager,
   ) {
-    const wallet = await this.getWalletByUserId(walletId, ['balance'], manager);
+    const wallet = await this.getWalletWithWriteLock(
+      { user: { id: userId } },
+      ['balance'],
+      manager,
+    );
+
     if (wallet.balance < amount) {
       throw new BadRequestException('Insufficient wallet balance');
     }
+  }
+
+  private async getWalletWithWriteLock(
+    cond: FindOptionsWhere<Wallet> | FindOptionsWhere<Wallet>[],
+    select?: Array<keyof Wallet>,
+    manager?: EntityManager,
+  ): Promise<Wallet> {
+    return this.walletRepo.findOneBy(cond, select, manager, {
+      mode: DATABASE_LOCK_MODES.PESSIMISTIC_WRITE,
+    });
   }
 }
