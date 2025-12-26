@@ -6,6 +6,7 @@ import {
   Repository,
 } from 'typeorm';
 import { User } from './entities/user.entity';
+import { DatabaseLockMode, Keys } from 'src/types';
 
 @Injectable()
 export class UsersRepository {
@@ -28,9 +29,14 @@ export class UsersRepository {
     cond: FindOptionsWhere<User> | FindOptionsWhere<User>[],
     select?: K[],
     manager?: EntityManager,
+    lock?: { mode: DatabaseLockMode },
   ): Promise<User> {
     const repo = manager?.getRepository(User) ?? this.userRepo;
-    const user = await repo.findOne({ where: cond, select });
+    const user = await repo.findOne({
+      where: cond,
+      ...(select && { select }),
+      ...(lock && { lock }),
+    });
 
     if (!user) {
       throw new NotFoundException(`User not found`);
