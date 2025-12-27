@@ -1,12 +1,13 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
 import { CurrentUserCtx } from 'src/common/decorators/current-user.decorator';
+import { ResponseMessage } from 'src/common/decorators/response.decorator';
+import { Msgs } from 'src/common/utils/messages.utils';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from '../users/entities/user.entity';
 import { DonationsService } from './donations.service';
-import { DonationDto, MakeDonationDto } from './dto/donation.dto';
-import { ResponseMessage } from 'src/common/decorators/response.decorator';
-import { Msgs } from 'src/common/utils/messages.utils';
+import { MakeDonationResponseDto } from './dto/donation-response.dto';
+import { MakeDonationDto } from './dto/donation.dto';
 
 @Controller('donations')
 export class DonationsController {
@@ -14,7 +15,7 @@ export class DonationsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @ApiCreatedResponse({ type: DonationDto })
+  @ApiCreatedResponse({ type: () => MakeDonationResponseDto })
   @ApiBearerAuth()
   @ResponseMessage(Msgs.donation.DONATION_SUCCESS())
   makeDonation(
