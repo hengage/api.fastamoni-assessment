@@ -6,22 +6,22 @@ import { Entity, Column, ManyToOne, JoinColumn, DeepPartial } from 'typeorm';
 
 @Entity({ name: 'donations' })
 export class Donation extends BaseEntity {
-  @ManyToOne(() => User, { eager: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { eager: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'donorId' })
   donor: DeepPartial<User>;
 
-  @ManyToOne(() => User, { eager: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { eager: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'beneficiaryId' })
   beneficiary: DeepPartial<User>;
 
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   amount: number;
 
-  @ManyToOne(() => Wallet, { eager: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => Wallet, { eager: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'donorWalletId' })
   donorWallet: DeepPartial<Wallet>;
 
-  @ManyToOne(() => Wallet, { eager: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => Wallet, { eager: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'beneficiaryWalletId' })
   beneficiaryWallet: DeepPartial<Wallet>;
 
