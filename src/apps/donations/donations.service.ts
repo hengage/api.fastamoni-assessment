@@ -8,6 +8,7 @@ import { Msgs } from '../../common/utils/messages.utils';
 import { EntityManager } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MakeDonationDto } from './dto/donation.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class DonationsService {
@@ -30,46 +31,25 @@ export class DonationsService {
     makeDonationDto: MakeDonationDto,
   ): Promise<Donation> {
     return this.atomicTransaction.runInAtomic(async (manager) => {
-      // 1. Verify donor and beneficiary
-      const [donor, beneficiary] = await Promise.all([
-        this.usersService.findById(donorId, ['id'], manager),
-        this.usersService.findById(
-          makeDonationDto.beneficiaryId,
-          ['id'],
-          manager,
-        ),
-      ]);
+      const beneficiary = await this.verifyBeneficiary(
+        makeDonationDto.beneficiaryId,
+        manager,
+      );
 
-      if (!beneficiary) {
-        throw new NotFoundException(Msgs.users.NOT_FOUND());
-      }
-
-      // 2. Get wallets
-      const [donorWallet, beneficiaryWallet] = await Promise.all([
-        this.walletService.getWalletByUserId(
-          donor.id,
-          ['id', 'balance'],
-          manager,
-        ),
-        this.walletService.getWalletByUserId(beneficiary.id, ['id'], manager),
-      ]);
-
-      // 3. Process payment
+      // Process donation
       const transactionRef = this.generateTransactionRef();
-      // await this.walletService.transferFunds(
-      //   {
-      //     fromWalletId: donorWallet.id,
-      //     toWalletId: beneficiaryWallet.id,
-      //     amount: makeDonationDto.amount,
-      //     transactionRef,
-      //   },
-      //   manager,
-      // );
+      const { donorWallet, beneficiaryWallet } =
+        await this.walletService.transferFundsInternally(
+          donorId,
+          makeDonationDto.beneficiaryId,
+          makeDonationDto.amount,
+          manager,
+        );
 
-      // 4. Create donation record
+      // Create donation record
       return this.createDonation(
         {
-          donor: { id: donor.id },
+          donor: { id: donorId },
           beneficiary: { id: beneficiary.id },
           donorWallet: { id: donorWallet.id },
           beneficiaryWallet: { id: beneficiaryWallet.id },
@@ -81,6 +61,23 @@ export class DonationsService {
         manager,
       );
     });
+  }
+
+  private async verifyBeneficiary(
+    beneficiaryId: string,
+    manager?: EntityManager,
+  ): Promise<User> {
+    const beneficiary = await this.usersService.findOneOrNull(
+      { id: beneficiaryId },
+      ['id'],
+      manager,
+    );
+
+    if (!beneficiary) {
+      throw new NotFoundException(Msgs.donation.BENEFICIARY_NOT_FOUND());
+    }
+
+    return beneficiary;
   }
 
   private generateTransactionRef(): string {

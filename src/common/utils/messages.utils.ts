@@ -43,6 +43,13 @@ export const Msgs = {
     },
   },
 
+  // Donation related messages
+  donation: {
+    BENEFICIARY_NOT_FOUND: () => 'Beneficiary account not found',
+    DONATION_SUCCESS: () => 'Donation processed successfully',
+    INVALID_AMOUNT: () => 'Donation amount must be greater than zero',
+  },
+
   requestValidation: {
     FIELD_REQUIRED: (field: string) => `${field} is required`,
 

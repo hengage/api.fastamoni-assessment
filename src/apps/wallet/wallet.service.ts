@@ -1,9 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { EntityManager, FindOptionsWhere } from 'typeorm';
-import { WalletRepository } from './wallet.repository';
-import { Wallet } from './entities/wallet.entity';
-import { User } from '../users/entities/user.entity';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DATABASE_LOCK_MODES } from 'src/common/constants';
+import { EntityManager, FindOptionsWhere } from 'typeorm';
+import { Wallet } from './entities/wallet.entity';
+import { WalletRepository } from './wallet.repository';
+import { Msgs } from 'src/common/utils/messages.utils';
 
 @Injectable()
 export class WalletService {
@@ -53,38 +53,15 @@ export class WalletService {
     }
   }
 
-  async credit(
-    walletId: Wallet['id'],
-    amount: number,
-    manager?: EntityManager,
-  ) {
-    const wallet = await this.getWalletWithWriteLock(
-      { id: walletId },
-      ['id'],
-      manager,
-    );
-    return this.walletRepo.credit(wallet.id, amount, manager);
-  }
-
-  async debit(walletId: Wallet['id'], amount: number, manager?: EntityManager) {
-    await this.ensureSufficientBalance(walletId, amount, manager);
-    return this.walletRepo.debit(walletId, amount, manager);
-  }
-
-  async ensureSufficientBalance(
-    userId: User['id'],
-    amount: number,
-    manager?: EntityManager,
-  ) {
-    const wallet = await this.getWalletWithWriteLock(
-      { user: { id: userId } },
-      ['balance'],
-      manager,
-    );
-
+  async debit(wallet: Wallet, amount: number, manager?: EntityManager) {
     if (wallet.balance < amount) {
-      throw new BadRequestException('Insufficient wallet balance');
+      throw new BadRequestException(Msgs.wallet.INSUFFICIENT_BALANCE());
     }
+    return this.walletRepo.debit(wallet.id, amount, manager);
+  }
+
+  async credit(wallet: Wallet, amount: number, manager?: EntityManager) {
+    return this.walletRepo.credit(wallet.id, amount, manager);
   }
 
   private async getWalletWithWriteLock(
@@ -95,5 +72,48 @@ export class WalletService {
     return this.walletRepo.findOneBy(cond, select, manager, {
       mode: DATABASE_LOCK_MODES.PESSIMISTIC_WRITE,
     });
+  }
+
+  async getDonationWallets(
+    donorId: ID,
+    beneficiaryId: ID,
+    manager?: EntityManager,
+  ): Promise<{ donorWallet: Wallet; beneficiaryWallet: Wallet }> {
+    // Determine lock order
+    const [firstId, secondId] = [donorId, beneficiaryId].sort();
+    const isDonorFirst = firstId === donorId;
+
+    const firstWallet = await this.getWalletWithWriteLock(
+      { user: { id: firstId } },
+      ['id', 'balance'],
+      manager,
+    );
+
+    const secondWallet = await this.getWalletWithWriteLock(
+      { user: { id: secondId } },
+      ['id', 'balance'],
+      manager,
+    );
+
+    return isDonorFirst
+      ? { donorWallet: firstWallet, beneficiaryWallet: secondWallet }
+      : { donorWallet: secondWallet, beneficiaryWallet: firstWallet };
+  }
+
+  async transferFundsInternally(
+    fromUserId: ID,
+    toUserId: ID,
+    amount: number,
+    manager?: EntityManager,
+  ) {
+    const { donorWallet, beneficiaryWallet } = await this.getDonationWallets(
+      fromUserId,
+      toUserId,
+      manager,
+    );
+    await this.debit(donorWallet, amount, manager);
+    await this.credit(beneficiaryWallet, amount, manager);
+
+    return { donorWallet, beneficiaryWallet };
   }
 }

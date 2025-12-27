@@ -6,6 +6,7 @@ import { User } from '../users/entities/user.entity';
 import { DonationsService } from './donations.service';
 import { DonationDto, MakeDonationDto } from './dto/donation.dto';
 import { ResponseMessage } from 'src/common/decorators/response.decorator';
+import { Msgs } from 'src/common/utils/messages.utils';
 
 @Controller('donations')
 export class DonationsController {
@@ -15,7 +16,7 @@ export class DonationsController {
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({ type: DonationDto })
   @ApiBearerAuth()
-  @ResponseMessage('Your donation was successful')
+  @ResponseMessage(Msgs.donation.DONATION_SUCCESS())
   makeDonation(
     @CurrentUserCtx() user: User,
     @Body() makeDonationDto: MakeDonationDto,

@@ -12,3 +12,5 @@ declare type JSONObject = { [x: string]: JSONValue };
 
 declare type DatabaseLockMode =
   (typeof DATABASE_LOCK_MODES)[keyof typeof DATABASE_LOCK_MODES];
+
+declare type ID = string;
