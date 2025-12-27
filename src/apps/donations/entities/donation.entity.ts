@@ -1,10 +1,11 @@
 import { User } from 'src/apps/users/entities/user.entity';
 import { Wallet } from 'src/apps/wallet/entities/wallet.entity';
+import { TABLE_NAMES } from 'src/common/constants';
 import { DonationStatus } from 'src/common/enums';
 import { BaseEntity } from 'src/common/models/base.entity';
 import { Entity, Column, ManyToOne, JoinColumn, DeepPartial } from 'typeorm';
 
-@Entity({ name: 'donations' })
+@Entity({ name: TABLE_NAMES.DONATIONS })
 export class Donation extends BaseEntity {
   @ManyToOne(() => User, { eager: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'donorId' })
