@@ -83,4 +83,15 @@ export class DonationsService {
   private generateTransactionRef(): string {
     return `DON-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
   }
+
+  async getUserDonationStats(
+    userId: ID,
+  ): Promise<{ sent: number; received: number }> {
+    const [sent, received] = await Promise.all([
+      this.donationsRepo.countBy({ donor: { id: userId } }),
+      this.donationsRepo.countBy({ beneficiary: { id: userId } }),
+    ]);
+
+    return { sent, received };
+  }
 }

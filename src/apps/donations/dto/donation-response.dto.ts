@@ -21,3 +21,26 @@ export class MakeDonationResponseDto extends ApiResponseDto<DonationResponseData
   })
   data: DonationResponseData;
 }
+
+export class GetUserDonationStatsResponseDto extends ApiResponseDto<{
+  sent: number;
+  received: number;
+}> {
+  @ApiProperty({
+    type: 'object',
+    properties: {
+      sent: {
+        type: 'number',
+        example: 5,
+        description: 'Number of donations sent by the user',
+      },
+      received: {
+        type: 'number',
+        example: 3,
+        description: 'Number of donations received by the user',
+      },
+    },
+    description: 'The user donation statistics',
+  })
+  data: { sent: number; received: number };
+}
