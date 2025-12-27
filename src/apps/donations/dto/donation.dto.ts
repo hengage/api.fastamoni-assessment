@@ -1,42 +1,64 @@
-import { OmitType } from '@nestjs/swagger';
+import { PickType } from '@nestjs/swagger';
 import {
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   IsUUID,
-  Max,
+  MaxLength,
   Min,
+  MinLength,
 } from 'class-validator';
+import { User } from 'src/apps/users/entities/user.entity';
+import { DonationStatus } from 'src/common/enums';
 import { Msgs } from 'src/common/utils/messages.utils';
+import { BaseEntityDto } from 'src/common/dtos/base-entity.dto';
 
-export class DonationDto {
+export class DonationDto extends BaseEntityDto {
   @IsString()
   @IsUUID()
   @IsNotEmpty()
   id: string;
 
-  @IsString()
-  @IsUUID()
-  @IsNotEmpty()
-  beneficiaryId: string;
-
-  @IsString()
-  @IsUUID()
-  @IsNotEmpty()
-  donorId: string;
-
-  @Min(100, { message: Msgs.requestValidation.MIN_LENGTH('Amount', 100) })
+  @Min(100)
   @IsNumber()
   @IsNotEmpty()
   amount: number;
 
+  @IsEnum(DonationStatus)
+  @IsString()
+  @IsNotEmpty()
+  status: DonationStatus;
+
+  @IsString()
+  @IsNotEmpty()
+  transactionRef: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
+  donor: User;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
+  beneficiary: User;
+
   @IsString()
   @IsOptional()
-  @Min(1, { message: Msgs.requestValidation.MIN_LENGTH('Message', 4) })
-  @Max(200, { message: Msgs.requestValidation.MAX_LENGTH('Message', 200) })
-  // @IsNotEmpty({ message: 'Message cannot be empty' })
+  @MinLength(4, { message: Msgs.requestValidation.MIN_LENGTH('Message', 4) })
+  @MaxLength(200, {
+    message: Msgs.requestValidation.MAX_LENGTH('Message', 200),
+  })
   message?: string;
 }
 
-export class MakeDonationDto extends OmitType(DonationDto, ['donorId', 'id']) {}
+export class MakeDonationDto extends PickType(DonationDto, [
+  'amount',
+  'message',
+] as const) {
+  @IsUUID()
+  @IsNotEmpty()
+  beneficiaryId: string;
+}
