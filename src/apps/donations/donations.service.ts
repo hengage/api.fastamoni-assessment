@@ -94,4 +94,8 @@ export class DonationsService {
 
     return { sent, received };
   }
+
+  async getDonationDetails(id: ID): Promise<Donation> {
+    return this.donationsRepo.getDonationDetails(id);
+  }
 }

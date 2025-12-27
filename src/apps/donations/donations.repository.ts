@@ -46,6 +46,39 @@ export class DonationsRepository {
     return donation;
   }
 
+  async getDonationDetails(id: ID, manager?: EntityManager): Promise<Donation> {
+    const repo = manager?.getRepository(Donation) ?? this.donationRepo;
+
+    const donation = await repo
+      .createQueryBuilder('donation')
+      .leftJoinAndSelect('donation.donor', 'donor')
+      .leftJoinAndSelect('donation.beneficiary', 'beneficiary')
+      .leftJoinAndSelect('donation.donorWallet', 'donorWallet')
+      .leftJoinAndSelect('donation.beneficiaryWallet', 'beneficiaryWallet')
+      .select([
+        'donation',
+        'donor.id',
+        'donor.firstName',
+        'donor.lastName',
+        'donor.email',
+        'beneficiary.id',
+        'beneficiary.firstName',
+        'beneficiary.lastName',
+        'beneficiary.email',
+        'donorWallet.id',
+        'donorWallet.balance',
+        'beneficiaryWallet.id',
+        'beneficiaryWallet.balance',
+      ])
+      .where('donation.id = :id', { id })
+      .getOne();
+
+    if (!donation) {
+      throw new NotFoundException(Msgs.common.NOT_FOUND('Donation'));
+    }
+    return donation;
+  }
+
   async countBy(
     criteria: FindOptionsWhere<Donation> | FindOptionsWhere<Donation>[],
     manager?: EntityManager,

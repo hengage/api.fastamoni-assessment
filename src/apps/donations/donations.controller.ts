@@ -1,5 +1,9 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CurrentUserCtx } from 'src/common/decorators/current-user.decorator';
 import { ResponseMessage } from 'src/common/decorators/response.decorator';
 import { Msgs } from 'src/common/utils/messages.utils';
@@ -7,6 +11,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from '../users/entities/user.entity';
 import { DonationsService } from './donations.service';
 import {
+  GetDonationDetailResponseDto,
   GetUserDonationStatsResponseDto,
   MakeDonationResponseDto,
 } from './dto/donation-response.dto';
@@ -31,8 +36,16 @@ export class DonationsController {
   @Get('user/stats')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiCreatedResponse({ type: () => GetUserDonationStatsResponseDto })
+  @ApiOkResponse({ type: () => GetUserDonationStatsResponseDto })
   getUserDonationStats(@CurrentUserCtx() user: User) {
     return this.donationsService.getUserDonationStats(user.id);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: () => GetDonationDetailResponseDto })
+  async getDonationDetails(@Param('id') id: ID) {
+    return this.donationsService.getDonationDetails(id);
   }
 }
