@@ -9,7 +9,11 @@ export abstract class IUsersService {
 
   abstract findByEmail(email: string, manager?: EntityManager): Promise<User>;
 
-  abstract findById(id: string, manager?: EntityManager): Promise<User>;
+  abstract findById(
+    id: string,
+    select?: Array<keyof User>,
+    manager?: EntityManager,
+  ): Promise<User>;
 
   abstract updateUser(
     id: string,

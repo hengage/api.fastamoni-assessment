@@ -41,8 +41,12 @@ export class UsersService extends IUsersService {
     return this.usersRepo.findOneBy({ email }, undefined, manager);
   }
 
-  async findById(id: string, manager?: EntityManager): Promise<User> {
-    return this.usersRepo.findOneBy({ id }, undefined, manager);
+  async findById(
+    id: string,
+    select?: Array<keyof User>,
+    manager?: EntityManager,
+  ): Promise<User> {
+    return this.usersRepo.findOneBy({ id }, select, manager);
   }
 
   async updateUser(
