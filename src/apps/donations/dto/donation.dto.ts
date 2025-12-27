@@ -14,6 +14,7 @@ import { User } from 'src/apps/users/entities/user.entity';
 import { DonationStatus } from 'src/common/enums';
 import { Msgs } from 'src/common/utils/messages.utils';
 import { BaseEntityDto } from 'src/common/dtos/base-entity.dto';
+import { Wallet } from 'src/apps/wallet/entities/wallet.entity';
 
 export class DonationDto extends BaseEntityDto {
   @IsString()
@@ -44,6 +45,16 @@ export class DonationDto extends BaseEntityDto {
   @IsString()
   @IsNotEmpty()
   beneficiary: User;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
+  donorWallet: Wallet;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
+  beneficiaryWallet: Wallet;
 
   @IsString()
   @IsOptional()
