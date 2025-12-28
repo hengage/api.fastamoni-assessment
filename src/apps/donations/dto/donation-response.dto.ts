@@ -85,10 +85,21 @@ class DonationDetailsResponseDataDto extends OmitType(DonationDto, [
   @ApiProperty({ type: DonationWalletDto })
   beneficiaryWallet: DonationWalletDto;
 }
+
 export class GetDonationDetailResponseDto extends ApiResponseDto<DonationDetailsResponseDataDto> {
   @ApiProperty({
     type: DonationDetailsResponseDataDto,
     description: 'The donation details',
   })
   data: DonationDetailsResponseDataDto;
+}
+
+export class GetDonationsListReponseDto extends ApiResponseDto<
+  DonationDetailsResponseDataDto[]
+> {
+  @ApiProperty({
+    type: [DonationDetailsResponseDataDto],
+    description: 'List of donations',
+  })
+  data: DonationDetailsResponseDataDto[];
 }

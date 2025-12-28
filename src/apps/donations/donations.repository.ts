@@ -26,6 +26,20 @@ export class DonationsRepository {
     return repo.save(donation);
   }
 
+  async findAllBy<K extends Keys<Donation>>(
+    cond: FindOptionsWhere<Donation> | FindOptionsWhere<Donation>[],
+    select?: K[],
+    manager?: EntityManager,
+  ): Promise<Donation[]> {
+    const repo = manager?.getRepository(Donation) ?? this.donationRepo;
+
+    return repo.find({
+      where: cond,
+      ...(select && { select }),
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findOneBy<K extends Keys<Donation>>(
     cond: FindOptionsWhere<Donation> | FindOptionsWhere<Donation>[],
     select?: K[],

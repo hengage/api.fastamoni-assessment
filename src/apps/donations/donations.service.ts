@@ -99,4 +99,8 @@ export class DonationsService {
   async getDonationDetails(id: ID): Promise<Donation> {
     return this.donationsRepo.getDonationDetails(id);
   }
+
+  async getDonationsList(): Promise<Donation[]> {
+    return this.donationsRepo.findAllBy({});
+  }
 }

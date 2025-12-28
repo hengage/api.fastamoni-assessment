@@ -12,6 +12,7 @@ import { User } from '../users/entities/user.entity';
 import { DonationsService } from './donations.service';
 import {
   GetDonationDetailResponseDto,
+  GetDonationsListReponseDto,
   GetUserDonationStatsResponseDto,
   MakeDonationResponseDto,
 } from './dto/donation-response.dto';
@@ -33,12 +34,12 @@ export class DonationsController {
     return this.donationsService.makeDonation(user.id, makeDonationDto);
   }
 
-  @Get('user/stats')
+  @Get()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOkResponse({ type: () => GetUserDonationStatsResponseDto })
-  getUserDonationStats(@CurrentUserCtx() user: User) {
-    return this.donationsService.getUserDonationStats(user.id);
+  @ApiOkResponse({ type: () => GetDonationsListReponseDto })
+  async getDonationsList() {
+    return this.donationsService.getDonationsList();
   }
 
   @Get(':id')
@@ -47,5 +48,13 @@ export class DonationsController {
   @ApiOkResponse({ type: () => GetDonationDetailResponseDto })
   async getDonationDetails(@Param('id') id: ID) {
     return this.donationsService.getDonationDetails(id);
+  }
+
+  @Get('user/stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: () => GetUserDonationStatsResponseDto })
+  getUserDonationStats(@CurrentUserCtx() user: User) {
+    return this.donationsService.getUserDonationStats(user.id);
   }
 }
