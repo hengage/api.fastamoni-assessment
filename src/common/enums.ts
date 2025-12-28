@@ -1,6 +1,6 @@
 export enum DonationStatus {
-  PENDING = 'PENDING',
-  SUCCESS = 'SUCCESS',
-  FAILED = 'FAILED',
-  REVERSED = 'REVERSED',
+  PENDING = 'pending',
+  SUCCESS = 'success',
+  FAILED = 'failed',
+  REVERSED = 'reversed',
 }
