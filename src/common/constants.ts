@@ -24,3 +24,9 @@ export const DATABASE_LOCK_MODES = {
   PESSIMISTIC_WRITE: 'pessimistic_write',
   PESSIMISTIC_READ: 'pessimistic_read',
 } as const;
+
+export const DONATION_FILTER_TYPES = {
+  SENT: 'sent',
+  RECEIVED: 'received',
+  ALL: 'all',
+} as const;

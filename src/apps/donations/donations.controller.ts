@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -17,6 +25,7 @@ import {
   MakeDonationResponseDto,
 } from './dto/donation-response.dto';
 import { MakeDonationDto } from './dto/donation.dto';
+import { DonationListQueryDto } from './dto/donation-query.dto';
 
 @Controller('donations')
 export class DonationsController {
@@ -38,7 +47,8 @@ export class DonationsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: () => GetDonationsListReponseDto })
-  async getDonationsList() {
+  async getDonationsList(@Query() query?: DonationListQueryDto) {
+    console.log('Query:', query);
     return this.donationsService.getDonationsList();
   }
 
