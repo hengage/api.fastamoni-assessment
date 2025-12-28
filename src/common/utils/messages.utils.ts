@@ -23,6 +23,7 @@ export const Msgs = {
     pin: {
       UPDATED: () => 'Transaction PIN updated successfully',
       INVALID: () => 'Invalid transaction PIN',
+      NOT_SET: () => 'Transaction PIN not set. Please set it to proceed.',
     },
 
     transaction: {

@@ -1,4 +1,4 @@
-import { PickType } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
@@ -6,6 +6,8 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Length,
+  Matches,
   MaxLength,
   Min,
   MinLength,
@@ -69,6 +71,16 @@ export class MakeDonationDto extends PickType(DonationDto, [
   'amount',
   'message',
 ] as const) {
+  @Length(6, 6, { message: Msgs.requestValidation.EXACT_LENGTH('pin', 6) })
+  @Matches(/^\d+$/, { message: Msgs.requestValidation.NUMERIC_ONLY('pin') })
+  @IsNotEmpty({ message: Msgs.requestValidation.FIELD_REQUIRED('pin') })
+  @ApiProperty({
+    description: 'Transaction PIN for verification',
+    example: '123456',
+    required: true,
+  })
+  transactionPin: string;
+
   @IsUUID()
   @IsNotEmpty()
   beneficiaryId: string;

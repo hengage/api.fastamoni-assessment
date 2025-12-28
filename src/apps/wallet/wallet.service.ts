@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { DATABASE_LOCK_MODES } from 'src/common/constants';
+import { Msgs } from 'src/common/utils/messages.utils';
 import { EntityManager, FindOptionsWhere } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
 import { WalletRepository } from './wallet.repository';
-import { Msgs } from 'src/common/utils/messages.utils';
 
 @Injectable()
 export class WalletService {
@@ -38,18 +38,15 @@ export class WalletService {
     );
   }
 
-  async validateTransactionPin(
-    userId: string,
-    pin: string,
-    manager?: EntityManager,
-  ): Promise<void> {
-    const wallet = await this.getWalletByUserId(
-      userId,
-      ['transactionPin'],
-      manager,
-    );
-    if (!(await wallet.validateTransactionPin(pin))) {
-      throw new BadRequestException('Invalid transaction pin');
+  async verifyTransactionPin(wallet: Wallet, pin: string): Promise<void> {
+    console.log('Verifying PIN for wallet:', wallet.id, 'Provided PIN:', pin);
+    console.log('Stored PIN hash:', wallet.transactionPin);
+    if (!wallet.transactionPin) {
+      throw new BadRequestException(Msgs.wallet.pin.NOT_SET());
+    }
+    const isPinValid = await wallet.validateTransactionPin(pin);
+    if (!isPinValid) {
+      throw new BadRequestException(Msgs.wallet.pin.INVALID());
     }
   }
 
@@ -85,13 +82,13 @@ export class WalletService {
 
     const firstWallet = await this.getWalletWithWriteLock(
       { user: { id: firstId } },
-      ['id', 'balance'],
+      ['id', 'balance', 'transactionPin'],
       manager,
     );
 
     const secondWallet = await this.getWalletWithWriteLock(
       { user: { id: secondId } },
-      ['id', 'balance'],
+      ['id', 'balance', 'transactionPin'],
       manager,
     );
 
@@ -103,6 +100,7 @@ export class WalletService {
   async transferFundsInternally(
     fromUserId: ID,
     toUserId: ID,
+    donorTransactionPin: string,
     amount: number,
     manager?: EntityManager,
   ) {
@@ -111,6 +109,7 @@ export class WalletService {
       toUserId,
       manager,
     );
+    await this.verifyTransactionPin(donorWallet, donorTransactionPin);
     await this.debit(donorWallet, amount, manager);
     await this.credit(beneficiaryWallet, amount, manager);
 

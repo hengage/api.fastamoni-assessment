@@ -42,6 +42,7 @@ export class DonationsService {
         await this.walletService.transferFundsInternally(
           donorId,
           makeDonationDto.beneficiaryId,
+          makeDonationDto.transactionPin,
           makeDonationDto.amount,
           manager,
         );
