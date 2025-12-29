@@ -18,5 +18,4 @@ declare type ID = string;
 declare type DonationListType =
   (typeof DONATION_FILTER_TYPES)[keyof typeof DONATION_FILTER_TYPES];
 
-declare type SortDirection =
-  (typeof SORT_DIRECTIONS)[keyof typeof SORT_DIRECTIONS];
+declare type SortDirection = 'ASC' | 'DESC';

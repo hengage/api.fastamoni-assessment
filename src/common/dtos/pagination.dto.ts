@@ -28,5 +28,5 @@ export class PaginationDto {
   @Transform(
     ({ value }: { value: string }) => value?.toUpperCase() as SortDirection,
   )
-  sortDirection?: SortDirection;
+  sortDirection?: SortDirection = SORT_DIRECTIONS.DESC;
 }

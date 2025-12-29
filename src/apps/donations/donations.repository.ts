@@ -1,5 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { DATA_SOURCE, DONATION_FILTER_TYPES } from 'src/common/constants';
+import {
+  DATA_SOURCE,
+  DEFAULT_PAGINATION,
+  DONATION_FILTER_TYPES,
+  SORT_DIRECTIONS,
+} from 'src/common/constants';
 import { Msgs } from 'src/common/utils/messages.utils';
 import { QueryBuilderUtil } from 'src/common/utils/query-builder.util';
 import {
@@ -55,20 +60,15 @@ export class DonationsRepository {
       queryBuilder,
       'donation',
       query as Record<string, string | number | undefined>,
-      [
-        'type',
-        'startDate',
-        'endDate',
-        'minAmount',
-        'maxAmount',
-        'sortDirection',
-        ...Object.values(DONATION_FILTER_TYPES),
-      ],
+      ['type'],
     );
 
     return queryBuilder
-      .orderBy('donation.createdAt', 'DESC')
-      .limit(100)
+      .orderBy(
+        'donation.createdAt',
+        query?.sortDirection ?? SORT_DIRECTIONS.DESC,
+      )
+      .limit(query?.limit ?? DEFAULT_PAGINATION.limit)
       .getMany();
   }
 

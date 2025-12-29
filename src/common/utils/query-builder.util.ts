@@ -39,7 +39,7 @@ export class QueryBuilderUtil {
     qb: SelectQueryBuilder<T>,
     alias: string,
     query: Record<string, string | number | undefined>,
-    specialKeys: string[] = [],
+    specialKeys: string[] = QueryBuilderUtil.defaultSpecialKeys,
   ) {
     Object.entries(query).forEach(([key, value]) => {
       if (value === undefined || value === null) return;
@@ -53,11 +53,12 @@ export class QueryBuilderUtil {
     qb: SelectQueryBuilder<T>,
     alias: string,
     query: Record<string, string | number | undefined>,
-    specialKeys: string[] = [],
+    specialKeys: string[],
     dateField = 'createdAt',
     amountField = 'amount',
   ) {
-    this.applyGenericFilters(qb, alias, query, specialKeys);
+    const mergedKeys = [...QueryBuilderUtil.defaultSpecialKeys, ...specialKeys];
+    this.applyGenericFilters(qb, alias, query, mergedKeys);
     this.applyDateRangeFilter(
       qb,
       alias,
@@ -73,4 +74,19 @@ export class QueryBuilderUtil {
       amountField,
     );
   }
+
+  /**
+   * It serves as a built-in list of keys used for special filtering operations (like date ranges or pagination),
+   * ensuring these parameters are not mistakenly treated as direct database field filters.
+   *
+   * @private
+   */
+  static defaultSpecialKeys = [
+    'startDate',
+    'endDate',
+    'minAmount',
+    'maxAmount',
+    'sortDirection',
+    'limit',
+  ];
 }
