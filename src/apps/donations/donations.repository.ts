@@ -1,11 +1,15 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   DATA_SOURCE,
+  DEFAULT_PAGINATION,
   DONATION_FILTER_TYPES,
-  SORT_DIRECTIONS,
 } from 'src/common/constants';
-import { CursorPaginationResult } from 'src/common/intrfaces/pagination.interface';
+import { CursorPaginationResult } from 'src/common/interfaces/pagination.interface';
 import { Msgs } from 'src/common/utils/messages.utils';
+import {
+  CursorPaginationOptions,
+  CursorPaginationUtil,
+} from 'src/common/utils/pagination/cursor-pagination.utils';
 import { QueryBuilderUtil } from 'src/common/utils/query-builder.util';
 import {
   DataSource,
@@ -63,42 +67,25 @@ export class DonationsRepository {
       ['type'],
     );
 
-    const sortDirection = query?.sortDirection || SORT_DIRECTIONS.DESC;
-    const limit = Math.min(query?.limit || 20, 100);
-    if (query?.primaryCursor && query?.secondaryCursor) {
-      const cursorDate = new Date(query.primaryCursor);
-      if (sortDirection === SORT_DIRECTIONS.DESC) {
-        queryBuilder.where(
-          `(donation.createdAt < :cursorDate OR (donation.createdAt = :cursorDate AND donation.id > :secondaryCursor))`,
-          { cursorDate, secondaryCursor: query.secondaryCursor },
-        );
-      } else {
-        queryBuilder.where(
-          `(donation.createdAt > :cursorDate OR (donation.createdAt = :cursorDate AND donation.id < :secondaryCursor))`,
-          { cursorDate, secondaryCursor: query.secondaryCursor },
-        );
-      }
-    }
-    const donations = await queryBuilder
-      .orderBy(`donation.createdAt`, sortDirection)
-      .addOrderBy(`donation.id`, sortDirection)
-      .limit(limit + 1)
-      .getMany();
-    const hasMore = donations.length > limit;
-    if (hasMore) {
-      donations.pop();
-    }
+    // Apply cursor pagination
+    const paginationOptions: CursorPaginationOptions = {
+      primaryCursor: query?.primaryCursor,
+      secondaryCursor: query?.secondaryCursor,
+      limit: query?.limit,
+      sortDirection: query?.sortDirection,
+    };
+    const { data, hasMore } = await CursorPaginationUtil.applyPagination(
+      queryBuilder,
+      paginationOptions,
+    );
+
     return {
-      donations,
-      pagination: {
-        primaryCursor: hasMore
-          ? donations[donations.length - 1].createdAt.toISOString()
-          : undefined,
-        secondaryCursor: hasMore
-          ? donations[donations.length - 1].id
-          : undefined,
+      donations: data,
+      pagination: CursorPaginationUtil.createPaginationResult(
+        data,
         hasMore,
-      },
+        query?.limit ?? DEFAULT_PAGINATION.limit,
+      ),
     };
   }
 

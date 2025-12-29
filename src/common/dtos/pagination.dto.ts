@@ -6,6 +6,7 @@ import {
   IsPositive,
   IsEnum,
   IsString,
+  Max,
 } from 'class-validator';
 import { DEFAULT_PAGINATION, SORT_DIRECTIONS } from '../constants';
 
@@ -18,10 +19,11 @@ export class PaginationDto {
   page?: number;
 
   @ApiProperty({ required: false, description: 'Number of items per page' })
-  @IsOptional()
   @Type(() => Number)
+  @Max(100)
   @IsNumber()
   @IsPositive()
+  @IsOptional()
   limit?: number;
 
   @ApiProperty({
@@ -57,13 +59,7 @@ export class CursorPaginationDto extends OmitType(PaginationDto, ['page']) {
   secondaryCursor?: string;
 }
 
-export class CursorPaginationResponseDto {
-  @ApiPropertyOptional({ description: 'Next primary cursor for pagination' })
-  primaryCursor?: string;
-
-  @ApiPropertyOptional({ description: 'Next secondary cursor for pagination' })
-  secondaryCursor?: string;
-
+export class CursorPaginationResponseDto extends CursorPaginationDto {
   @ApiProperty({ description: 'Whether there are more items' })
   hasMore: boolean;
 }

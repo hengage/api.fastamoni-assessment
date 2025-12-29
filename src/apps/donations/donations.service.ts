@@ -10,7 +10,7 @@ import { DonationsRepository } from './donations.repository';
 import { DonationsListQueryDto } from './dto/donation-query.dto';
 import { MakeDonationDto } from './dto/donation.dto';
 import { Donation } from './entities/donation.entity';
-import { CursorPaginationResult } from 'src/common/intrfaces/pagination.interface';
+import { CursorPaginationResult } from 'src/common/interfaces/pagination.interface';
 
 @Injectable()
 export class DonationsService {
