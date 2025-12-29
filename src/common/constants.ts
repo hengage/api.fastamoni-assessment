@@ -28,5 +28,4 @@ export const DATABASE_LOCK_MODES = {
 export const DONATION_FILTER_TYPES = {
   SENT: 'sent',
   RECEIVED: 'received',
-  ALL: 'all',
 } as const;

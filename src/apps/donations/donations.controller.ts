@@ -18,6 +18,7 @@ import { Msgs } from 'src/common/utils/messages.utils';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from '../users/entities/user.entity';
 import { DonationsService } from './donations.service';
+import { DonationsListQueryDto } from './dto/donation-query.dto';
 import {
   GetDonationDetailResponseDto,
   GetDonationsListReponseDto,
@@ -25,7 +26,6 @@ import {
   MakeDonationResponseDto,
 } from './dto/donation-response.dto';
 import { MakeDonationDto } from './dto/donation.dto';
-import { DonationListQueryDto } from './dto/donation-query.dto';
 
 @Controller('donations')
 export class DonationsController {
@@ -47,9 +47,12 @@ export class DonationsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: () => GetDonationsListReponseDto })
-  async getDonationsList(@Query() query?: DonationListQueryDto) {
+  async getDonationsList(
+    @CurrentUserCtx() user: User,
+    @Query() query?: DonationsListQueryDto,
+  ) {
     console.log('Query:', query);
-    return this.donationsService.getDonationsList();
+    return this.donationsService.getDonationsList(user.id, query || {});
   }
 
   @Get(':id')

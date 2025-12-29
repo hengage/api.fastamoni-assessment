@@ -7,7 +7,7 @@ import {
 } from 'src/common/dtos/query-filter.dto';
 import { DonationStatus } from 'src/common/enums';
 
-export class DonationListQueryDto extends IntersectionType(
+export class DonationsListQueryDto extends IntersectionType(
   DateRangeQueryDto,
   AmountRangeQueryDto,
 ) {

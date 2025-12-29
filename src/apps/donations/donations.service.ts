@@ -1,14 +1,15 @@
-import { DonationsRepository } from './donations.repository';
-import { WalletService } from '../wallet/wallet.service';
-import { UsersService } from '../users/users.service';
-import { AtomicTransactionService } from '../../database/atomic-transaction.service';
-import { Donation } from './entities/donation.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { EntityManager } from 'typeorm';
 import { DonationStatus } from '../../common/enums';
 import { Msgs } from '../../common/utils/messages.utils';
-import { EntityManager } from 'typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { MakeDonationDto } from './dto/donation.dto';
+import { AtomicTransactionService } from '../../database/atomic-transaction.service';
 import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
+import { WalletService } from '../wallet/wallet.service';
+import { DonationsRepository } from './donations.repository';
+import { DonationsListQueryDto } from './dto/donation-query.dto';
+import { MakeDonationDto } from './dto/donation.dto';
+import { Donation } from './entities/donation.entity';
 
 @Injectable()
 export class DonationsService {
@@ -100,7 +101,10 @@ export class DonationsService {
     return this.donationsRepo.getDonationDetails(id);
   }
 
-  async getDonationsList(): Promise<Donation[]> {
-    return this.donationsRepo.findAllBy({});
+  async getDonationsList(
+    userId: ID,
+    filter: DonationsListQueryDto,
+  ): Promise<Donation[]> {
+    return this.donationsRepo.findAllBy(userId, filter);
   }
 }

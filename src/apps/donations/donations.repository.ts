@@ -1,13 +1,16 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Donation } from './entities/donation.entity';
+import { DATA_SOURCE, DONATION_FILTER_TYPES } from 'src/common/constants';
+import { Msgs } from 'src/common/utils/messages.utils';
+import { QueryBuilderUtil } from 'src/common/utils/query-builder.util';
 import {
   DataSource,
   EntityManager,
   FindOptionsWhere,
   Repository,
+  SelectQueryBuilder,
 } from 'typeorm';
-import { DATA_SOURCE } from 'src/common/constants';
-import { Msgs } from 'src/common/utils/messages.utils';
+import { DonationsListQueryDto } from './dto/donation-query.dto';
+import { Donation } from './entities/donation.entity';
 
 @Injectable()
 export class DonationsRepository {
@@ -26,18 +29,31 @@ export class DonationsRepository {
     return repo.save(donation);
   }
 
-  async findAllBy<K extends Keys<Donation>>(
-    cond: FindOptionsWhere<Donation> | FindOptionsWhere<Donation>[],
-    select?: K[],
-    manager?: EntityManager,
+  async findAllBy(
+    userId: ID,
+    query?: DonationsListQueryDto,
   ): Promise<Donation[]> {
-    const repo = manager?.getRepository(Donation) ?? this.donationRepo;
+    const qb = this.donationRepo.createQueryBuilder('donation');
 
-    return repo.find({
-      where: cond,
-      ...(select && { select }),
-      order: { createdAt: 'DESC' },
-    });
+    // User scoping
+    this.buildUserQuery(qb, userId, query?.type);
+
+    // Apply all filters using utility
+    QueryBuilderUtil.applyAllFilters(
+      qb,
+      'donation',
+      query as Record<string, string | number | undefined>,
+      [
+        'type',
+        'startDate',
+        'endDate',
+        'minAmount',
+        'maxAmount',
+        ...Object.values(DONATION_FILTER_TYPES),
+      ],
+    );
+
+    return qb.orderBy('donation.createdAt', 'DESC').limit(100).getMany();
   }
 
   async findOneBy<K extends Keys<Donation>>(
@@ -99,5 +115,23 @@ export class DonationsRepository {
   ): Promise<number> {
     const repo = manager?.getRepository(Donation) ?? this.donationRepo;
     return repo.count({ where: criteria });
+  }
+
+  private buildUserQuery(
+    qb: SelectQueryBuilder<Donation>,
+    userId: string,
+    type?: DonationListType,
+  ): SelectQueryBuilder<Donation> {
+    if (type === DONATION_FILTER_TYPES.SENT) {
+      qb.where('donation.donorId = :userId', { userId });
+    } else if (type === DONATION_FILTER_TYPES.RECEIVED) {
+      qb.where('donation.beneficiaryId = :userId', { userId });
+    } else {
+      qb.where(
+        '(donation.donorId = :userId OR donation.beneficiaryId = :userId)',
+        { userId },
+      );
+    }
+    return qb;
   }
 }
