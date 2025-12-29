@@ -1,6 +1,7 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { ApiResponseDto } from 'src/common/dtos/api-response.dto';
 import { DonationDto } from './donation.dto';
+import { CursorPaginationResponseDto } from 'src/common/dtos/pagination.dto';
 
 export class MakeDonationResponseData extends OmitType(DonationDto, [
   'isActive',
@@ -91,12 +92,16 @@ export class GetDonationDetailResponseDto extends ApiResponseDto<DonationDetails
   data: DonationDetailsResponseDataDto;
 }
 
-export class GetDonationsListReponseDto extends ApiResponseDto<
-  DonationDetailsResponseDataDto[]
-> {
+export class GetDonationsListReponseDto extends ApiResponseDto<{
+  donations: DonationDetailsResponseDataDto[];
+  pagination: CursorPaginationResponseDto;
+}> {
   @ApiProperty({
     type: [DonationDetailsResponseDataDto],
     description: 'List of donations',
   })
-  data: DonationDetailsResponseDataDto[];
+  data: {
+    donations: DonationDetailsResponseDataDto[];
+    pagination: CursorPaginationResponseDto;
+  };
 }

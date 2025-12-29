@@ -10,6 +10,7 @@ import { DonationsRepository } from './donations.repository';
 import { DonationsListQueryDto } from './dto/donation-query.dto';
 import { MakeDonationDto } from './dto/donation.dto';
 import { Donation } from './entities/donation.entity';
+import { CursorPaginationResult } from 'src/common/intrfaces/pagination.interface';
 
 @Injectable()
 export class DonationsService {
@@ -104,7 +105,7 @@ export class DonationsService {
   async getDonationsList(
     userId: ID,
     filter: DonationsListQueryDto,
-  ): Promise<Donation[]> {
+  ): Promise<CursorPaginationResult<Donation, 'donations'>> {
     return this.donationsRepo.findAllBy(userId, filter);
   }
 }

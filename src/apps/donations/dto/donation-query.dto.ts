@@ -1,7 +1,7 @@
 import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 import { IsEnum, IsIn, IsOptional, IsString } from 'class-validator';
 import { DONATION_FILTER_TYPES } from 'src/common/constants';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { CursorPaginationDto } from 'src/common/dtos/pagination.dto';
 import {
   AmountRangeQueryDto,
   DateRangeQueryDto,
@@ -11,7 +11,7 @@ import { DonationStatus } from 'src/common/enums';
 export class DonationsListQueryDto extends IntersectionType(
   DateRangeQueryDto,
   AmountRangeQueryDto,
-  PaginationDto,
+  CursorPaginationDto,
 ) {
   @ApiPropertyOptional({
     enum: Object.values(DONATION_FILTER_TYPES),

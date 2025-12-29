@@ -1,10 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   DATA_SOURCE,
-  DEFAULT_PAGINATION,
   DONATION_FILTER_TYPES,
   SORT_DIRECTIONS,
 } from 'src/common/constants';
+import { CursorPaginationResult } from 'src/common/intrfaces/pagination.interface';
 import { Msgs } from 'src/common/utils/messages.utils';
 import { QueryBuilderUtil } from 'src/common/utils/query-builder.util';
 import {
@@ -37,7 +37,7 @@ export class DonationsRepository {
   async findAllBy(
     userId: ID,
     query?: DonationsListQueryDto,
-  ): Promise<Donation[]> {
+  ): Promise<CursorPaginationResult<Donation, 'donations'>> {
     const queryBuilder = this.donationRepo
       .createQueryBuilder('donation')
       .leftJoin('donation.donor', 'donor')
@@ -63,13 +63,43 @@ export class DonationsRepository {
       ['type'],
     );
 
-    return queryBuilder
-      .orderBy(
-        'donation.createdAt',
-        query?.sortDirection ?? SORT_DIRECTIONS.DESC,
-      )
-      .limit(query?.limit ?? DEFAULT_PAGINATION.limit)
+    const sortDirection = query?.sortDirection || SORT_DIRECTIONS.DESC;
+    const limit = Math.min(query?.limit || 20, 100);
+    if (query?.primaryCursor && query?.secondaryCursor) {
+      const cursorDate = new Date(query.primaryCursor);
+      if (sortDirection === SORT_DIRECTIONS.DESC) {
+        queryBuilder.where(
+          `(donation.createdAt < :cursorDate OR (donation.createdAt = :cursorDate AND donation.id > :secondaryCursor))`,
+          { cursorDate, secondaryCursor: query.secondaryCursor },
+        );
+      } else {
+        queryBuilder.where(
+          `(donation.createdAt > :cursorDate OR (donation.createdAt = :cursorDate AND donation.id < :secondaryCursor))`,
+          { cursorDate, secondaryCursor: query.secondaryCursor },
+        );
+      }
+    }
+    const donations = await queryBuilder
+      .orderBy(`donation.createdAt`, sortDirection)
+      .addOrderBy(`donation.id`, sortDirection)
+      .limit(limit + 1)
       .getMany();
+    const hasMore = donations.length > limit;
+    if (hasMore) {
+      donations.pop();
+    }
+    return {
+      donations,
+      pagination: {
+        primaryCursor: hasMore
+          ? donations[donations.length - 1].createdAt.toISOString()
+          : undefined,
+        secondaryCursor: hasMore
+          ? donations[donations.length - 1].id
+          : undefined,
+        hasMore,
+      },
+    };
   }
 
   async findOneBy<K extends Keys<Donation>>(
