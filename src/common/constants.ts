@@ -29,3 +29,16 @@ export const DONATION_FILTER_TYPES = {
   SENT: 'sent',
   RECEIVED: 'received',
 } as const;
+
+export const SORT_DIRECTIONS = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
+
+export const DEFAULT_PAGINATION = {
+  page: 1,
+  limit: 20,
+  sortDirection: SORT_DIRECTIONS.DESC,
+} as const;
+
+export const MAX_PAGINATION_LIMIT = 100;

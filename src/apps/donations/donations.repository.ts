@@ -49,6 +49,7 @@ export class DonationsRepository {
         'endDate',
         'minAmount',
         'maxAmount',
+        'sortDirection',
         ...Object.values(DONATION_FILTER_TYPES),
       ],
     );
