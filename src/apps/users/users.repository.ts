@@ -46,6 +46,22 @@ export class UsersRepository {
     return user;
   }
 
+  async findOneOrNull<K extends Keys<User>>(
+    cond: FindOptionsWhere<User> | FindOptionsWhere<User>[],
+    select?: K[],
+    manager?: EntityManager,
+    lock?: { mode: DatabaseLockMode },
+  ): Promise<User | null> {
+    const repo = manager?.getRepository(User) ?? this.userRepo;
+    const user = await repo.findOne({
+      where: cond,
+      ...(select && { select }),
+      ...(lock && { lock }),
+    });
+
+    return user;
+  }
+
   async findByEmail(email: string, manager?: EntityManager): Promise<User> {
     const repo = manager?.getRepository(User) ?? this.userRepo;
     const user = await repo.findOne({ where: { email } });

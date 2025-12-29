@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { DATA_SOURCE } from 'src/common/constants';
+import { Msgs } from 'src/common/utils/messages.utils';
 import {
   DataSource,
   EntityManager,
@@ -7,7 +8,6 @@ import {
   Repository,
 } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
-import { Msgs } from 'src/common/utils/messages.utils';
 
 @Injectable()
 export class WalletRepository {
@@ -50,6 +50,15 @@ export class WalletRepository {
     manager?: EntityManager,
   ) {
     const repo = manager?.getRepository(Wallet) ?? this.walletRepo;
+
+    // Hash transaction PIN if provided, since repository.update() doesn't trigger entity hooks
+    if (data.transactionPin) {
+      const wallet = await this.findOneBy({ id }, ['transactionPin'], manager);
+      wallet.transactionPin = data.transactionPin;
+      await wallet.hashTransactionPin();
+      data.transactionPin = wallet.transactionPin;
+    }
+
     await repo.update(id, data);
     return repo.findOne({ where: { id } });
   }

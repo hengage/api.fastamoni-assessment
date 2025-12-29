@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { AtomicTransactionService } from 'src/database/atomic-transaction.service';
-import { EntityManager } from 'typeorm';
+import { EntityManager, FindOptionsWhere } from 'typeorm';
 import { WalletService } from '../wallet/wallet.service';
 import { CreateUserDto } from './dto/user.dto';
 import { User } from './entities/user.entity';
@@ -41,8 +41,20 @@ export class UsersService extends IUsersService {
     return this.usersRepo.findOneBy({ email }, undefined, manager);
   }
 
-  async findById(id: string, manager?: EntityManager): Promise<User> {
-    return this.usersRepo.findOneBy({ id }, undefined, manager);
+  async findById(
+    id: string,
+    select?: Array<keyof User>,
+    manager?: EntityManager,
+  ): Promise<User> {
+    return this.usersRepo.findOneBy({ id }, select, manager);
+  }
+
+  async findOneOrNull(
+    cond: FindOptionsWhere<User> | FindOptionsWhere<User>[],
+    select?: Array<keyof User>,
+    manager?: EntityManager,
+  ): Promise<User | null> {
+    return this.usersRepo.findOneOrNull(cond, select, manager);
   }
 
   async updateUser(

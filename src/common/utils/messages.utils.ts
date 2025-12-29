@@ -23,6 +23,7 @@ export const Msgs = {
     pin: {
       UPDATED: () => 'Transaction PIN updated successfully',
       INVALID: () => 'Invalid transaction PIN',
+      NOT_SET: () => 'Transaction PIN not set. Please set it to proceed.',
     },
 
     transaction: {
@@ -41,6 +42,13 @@ export const Msgs = {
       INVALID: () => 'Invalid or expired token',
       REQUIRED: () => 'Authentication token is required',
     },
+  },
+
+  // Donation related messages
+  donation: {
+    BENEFICIARY_NOT_FOUND: () => 'Beneficiary account not found',
+    DONATION_SUCCESS: () => 'Donation processed successfully',
+    INVALID_AMOUNT: () => 'Donation amount must be greater than zero',
   },
 
   requestValidation: {

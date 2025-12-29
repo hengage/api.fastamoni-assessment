@@ -10,7 +10,7 @@ export abstract class BaseEntity {
   id: string;
 
   @Column({ default: true })
-  isActive: boolean;
+  isActive?: boolean;
 
   @CreateDateColumn({
     type: 'timestamp',
