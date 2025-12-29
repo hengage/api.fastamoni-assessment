@@ -54,9 +54,6 @@ class DonationUserDto {
 
   @ApiProperty({ description: 'Last name' })
   lastName: string;
-
-  @ApiProperty({ description: 'Email address' })
-  email: string;
 }
 
 class DonationWalletDto {

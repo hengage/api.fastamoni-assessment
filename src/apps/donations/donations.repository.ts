@@ -33,14 +33,26 @@ export class DonationsRepository {
     userId: ID,
     query?: DonationsListQueryDto,
   ): Promise<Donation[]> {
-    const qb = this.donationRepo.createQueryBuilder('donation');
+    const queryBuilder = this.donationRepo
+      .createQueryBuilder('donation')
+      .leftJoin('donation.donor', 'donor')
+      .leftJoin('donation.beneficiary', 'beneficiary')
+      .select([
+        'donation',
+        'donor.id',
+        'donor.firstName',
+        'donor.lastName',
+        'beneficiary.id',
+        'beneficiary.firstName',
+        'beneficiary.lastName',
+      ]);
 
     // User scoping
-    this.buildUserQuery(qb, userId, query?.type);
+    this.buildUserQuery(queryBuilder, userId, query?.type);
 
     // Apply all filters using utility
     QueryBuilderUtil.applyAllFilters(
-      qb,
+      queryBuilder,
       'donation',
       query as Record<string, string | number | undefined>,
       [
@@ -54,7 +66,10 @@ export class DonationsRepository {
       ],
     );
 
-    return qb.orderBy('donation.createdAt', 'DESC').limit(100).getMany();
+    return queryBuilder
+      .orderBy('donation.createdAt', 'DESC')
+      .limit(100)
+      .getMany();
   }
 
   async findOneBy<K extends Keys<Donation>>(
@@ -91,11 +106,9 @@ export class DonationsRepository {
         'donor.id',
         'donor.firstName',
         'donor.lastName',
-        'donor.email',
         'beneficiary.id',
         'beneficiary.firstName',
         'beneficiary.lastName',
-        'beneficiary.email',
         'donorWallet.id',
         'donorWallet.balance',
         'beneficiaryWallet.id',
