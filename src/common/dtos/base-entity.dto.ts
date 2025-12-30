@@ -1,6 +1,6 @@
 // src/common/dtos/base-entity.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseEntity } from '../models/base.entity';
+import { BaseEntity } from '../entities/base.entity';
 
 export class BaseEntityDto implements Partial<BaseEntity> {
   @ApiProperty({ description: 'Unique identifier' })

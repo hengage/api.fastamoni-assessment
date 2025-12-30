@@ -1,7 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { User } from 'src/apps/users/entities/user.entity';
 import { TABLE_NAMES } from 'src/common/constants';
-import { BaseEntity } from 'src/common/models/base.entity';
+import { BaseEntity } from 'src/common/entities/base.entity';
 import { PasswordUtil } from 'src/common/utils/password.utils';
 import { Column, DeepPartial, Entity, JoinColumn, OneToOne } from 'typeorm';
 
