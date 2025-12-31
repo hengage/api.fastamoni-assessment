@@ -7,6 +7,7 @@ import { UsersModule } from './apps/users/users.module';
 import { AuthModule } from './apps/auth/auth.module';
 import { WalletModule } from './apps/wallet/wallet.module';
 import { DonationsModule } from './apps/donations/donations.module';
+import { IdempotencyModule } from './common/services/idempotency/idempotency.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DonationsModule } from './apps/donations/donations.module';
     AuthModule,
     WalletModule,
     DonationsModule,
+    IdempotencyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -2,6 +2,7 @@ export const TABLE_NAMES = {
   USERS: 'users',
   WALLET: 'wallets',
   DONATIONS: 'donations',
+  IDEMPOTENCY_KEYS: 'idempotency_keys',
 } as const;
 
 export const DATA_SOURCE = 'DATA_SOURCE';
@@ -42,3 +43,9 @@ export const DEFAULT_PAGINATION = {
 } as const;
 
 export const MAX_PAGINATION_LIMIT = 100;
+
+export const HTTP_HEADERS = {
+  IDEMPOTENCY_KEY: 'X-Idempotency-Key',
+  AUTHORIZATION: 'Authorization',
+  CONTENT_TYPE: 'Content-Type',
+} as const;

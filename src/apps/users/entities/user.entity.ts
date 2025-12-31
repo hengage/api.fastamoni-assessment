@@ -1,7 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { Wallet } from 'src/apps/wallet/entities/wallet.entity';
 import { TABLE_NAMES } from 'src/common/constants';
-import { BaseEntity } from 'src/common/models/base.entity';
+import { BaseEntity } from 'src/common/entities/base.entity';
 import { PasswordUtil } from 'src/common/utils/password.utils';
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToOne } from 'typeorm';
 
