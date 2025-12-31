@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Param,
   Post,
   Query,
@@ -26,21 +27,28 @@ import {
   MakeDonationResponseDto,
 } from './dto/donation-response.dto';
 import { MakeDonationDto } from './dto/donation.dto';
+import { IdempotencyGuard } from 'src/common/services/idempotency/idempotency.guard';
+import { HTTP_HEADERS } from 'src/common/constants';
 
 @Controller('donations')
 export class DonationsController {
   constructor(private readonly donationsService: DonationsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, IdempotencyGuard)
   @ApiCreatedResponse({ type: () => MakeDonationResponseDto })
   @ApiBearerAuth()
   @ResponseMessage(Msgs.donation.DONATION_SUCCESS())
   makeDonation(
     @CurrentUserCtx() user: User,
+    @Headers(HTTP_HEADERS.IDEMPOTENCY_KEY) idempotencyKey: string,
     @Body() makeDonationDto: MakeDonationDto,
   ) {
-    return this.donationsService.makeDonation(user.id, makeDonationDto);
+    return this.donationsService.makeDonation(
+      user.id,
+      makeDonationDto,
+      idempotencyKey,
+    );
   }
 
   @Get()

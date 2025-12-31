@@ -11,6 +11,7 @@ import { DonationsListQueryDto } from './dto/donation-query.dto';
 import { MakeDonationDto } from './dto/donation.dto';
 import { Donation } from './entities/donation.entity';
 import { CursorPaginationResult } from 'src/common/intrfaces/pagination.interface';
+import { IdempotencyService } from 'src/common/services/idempotency/idempotency.service';
 
 @Injectable()
 export class DonationsService {
@@ -19,6 +20,7 @@ export class DonationsService {
     private readonly walletService: WalletService,
     private readonly usersService: UsersService,
     private readonly atomicTransaction: AtomicTransactionService,
+    private readonly idempotencyService: IdempotencyService,
   ) {}
 
   async createDonation(
@@ -31,39 +33,56 @@ export class DonationsService {
   async makeDonation(
     donorId: string,
     makeDonationDto: MakeDonationDto,
+    idempotencyKey: string,
   ): Promise<Donation> {
     return this.atomicTransaction.runInAtomic(async (manager) => {
-      const beneficiary = await this.verifyBeneficiary(
-        makeDonationDto.beneficiaryId,
-        manager,
-      );
-
-      // Process donation
-      const transactionRef = this.generateTransactionRef();
-      const { donorWallet, beneficiaryWallet } =
-        await this.walletService.transferFundsInternally(
-          donorId,
-          makeDonationDto.beneficiaryId,
-          makeDonationDto.transactionPin,
-          makeDonationDto.amount,
-          manager,
-        );
-
-      // Create donation record
-      return this.createDonation(
+      return this.idempotencyService.execute(
         {
-          donor: { id: donorId },
-          beneficiary: { id: beneficiary.id },
-          donorWallet: { id: donorWallet.id },
-          beneficiaryWallet: { id: beneficiaryWallet.id },
-          amount: makeDonationDto.amount,
-          message: makeDonationDto.message,
-          transactionRef,
-          status: DonationStatus.SUCCESS,
+          key: idempotencyKey,
+          requestPath: '/donations',
+          userId: donorId,
         },
+        (manager) => this.processDonation(donorId, makeDonationDto, manager),
         manager,
       );
     });
+  }
+
+  private async processDonation(
+    donorId: string,
+    makeDonationDto: MakeDonationDto,
+    manager: EntityManager,
+  ): Promise<Donation> {
+    const beneficiary = await this.verifyBeneficiary(
+      makeDonationDto.beneficiaryId,
+      manager,
+    );
+
+    // Process donation
+    const transactionRef = this.generateTransactionRef();
+    const { donorWallet, beneficiaryWallet } =
+      await this.walletService.transferFundsInternally(
+        donorId,
+        makeDonationDto.beneficiaryId,
+        makeDonationDto.transactionPin,
+        makeDonationDto.amount,
+        manager,
+      );
+
+    // Create donation record
+    return this.createDonation(
+      {
+        donor: { id: donorId },
+        beneficiary: { id: beneficiary.id },
+        donorWallet: { id: donorWallet.id },
+        beneficiaryWallet: { id: beneficiaryWallet.id },
+        amount: makeDonationDto.amount,
+        message: makeDonationDto.message,
+        transactionRef,
+        status: DonationStatus.SUCCESS,
+      },
+      manager,
+    );
   }
 
   private async verifyBeneficiary(

@@ -5,9 +5,10 @@ import { UsersModule } from '../users/users.module';
 import { DatabaseModule } from '../../database/database.module';
 import { WalletModule } from '../wallet/wallet.module';
 import { DonationsRepository } from './donations.repository';
+import { IdempotencyModule } from 'src/common/services/idempotency/idempotency.module';
 
 @Module({
-  imports: [UsersModule, DatabaseModule, WalletModule],
+  imports: [UsersModule, DatabaseModule, WalletModule, IdempotencyModule],
   controllers: [DonationsController],
   providers: [DonationsService, DonationsRepository],
 })
