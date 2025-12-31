@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IdempotencyRepository } from './idempotency.repository';
 import { EntityManager } from 'typeorm';
 import { CreateIdempotencyKey } from './idempotency.interface';
+import { DATABASE_LOCK_MODES } from 'src/common/constants';
 
 @Injectable()
 export class IdempotencyService {
@@ -13,7 +14,11 @@ export class IdempotencyService {
     manager: EntityManager,
   ): Promise<T> {
     // Check existing
-    const existing = await this.idempotencyRepo.findOneByKey(data.key, manager);
+    const existing = await this.idempotencyRepo.findOneByKey(
+      data.key,
+      manager,
+      { mode: DATABASE_LOCK_MODES.PESSIMISTIC_WRITE },
+    );
     if (existing) {
       return existing.response as T;
     }

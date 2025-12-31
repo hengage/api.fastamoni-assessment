@@ -31,10 +31,11 @@ export class IdempotencyRepository {
   async findOneByKey(
     key: string,
     manager?: EntityManager,
+    lock?: { mode: DatabaseLockMode },
   ): Promise<IdempotencyKey | null> {
     const repo =
       manager?.getRepository(IdempotencyKey) ??
       this.dataSource.getRepository(IdempotencyKey);
-    return repo.findOne({ where: { key } });
+    return repo.findOne({ where: { key }, lock });
   }
 }
