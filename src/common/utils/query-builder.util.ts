@@ -76,7 +76,7 @@ export class QueryBuilderUtil {
   }
 
   /**
-   * It serves as a built-in list of keys used for special filtering operations (like date ranges or pagination),
+   * A built-in list of keys used for special filtering operations (like date ranges or pagination),
    * ensuring these parameters are not mistakenly treated as direct database field filters.
    *
    * @private
@@ -88,5 +88,7 @@ export class QueryBuilderUtil {
     'maxAmount',
     'sortDirection',
     'limit',
+    'primaryCursor',
+    'secondaryCursor',
   ];
 }

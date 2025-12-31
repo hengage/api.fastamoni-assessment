@@ -1,6 +1,7 @@
 export interface CursorPaginationMeta {
   primaryCursor?: string;
   secondaryCursor?: string;
+  limit?: number;
   hasMore: boolean;
 }
 
