@@ -10,6 +10,7 @@ export enum EnvironmentKeys {
   DATABASE_NAME = 'DATABASE_NAME',
   DATABASE_HOST = 'DATABASE_HOST',
   DATABASE_PORT = 'DATABASE_PORT',
+  ALLOWED_HEADERS = 'ALLOWED_HEADERS',
 }
 
 export class ConfigService {

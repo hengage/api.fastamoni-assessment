@@ -6,9 +6,11 @@ import { ENV } from './config/env';
 import { EnvironmentKeys } from './config/config.service';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import corsOptions from './config/cors.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors(corsOptions);
 
   app.useGlobalPipes(
     new ValidationPipe({

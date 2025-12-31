@@ -17,6 +17,7 @@ const envConfig: Record<EnvironmentKeys, EnvConfig> = {
   [EnvironmentKeys.DATABASE_PASSWORD]: {},
   [EnvironmentKeys.DATABASE_NAME]: {},
   [EnvironmentKeys.DATABASE_HOST]: {},
+  [EnvironmentKeys.ALLOWED_HEADERS]: { type: 'string' },
 
   // Numbers
   [EnvironmentKeys.PORT]: { type: 'number', fallback: 8080 },
