@@ -49,3 +49,9 @@ export const HTTP_HEADERS = {
   AUTHORIZATION: 'Authorization',
   CONTENT_TYPE: 'Content-Type',
 } as const;
+
+export const PROVIDER_TOKENS = {
+  UUID_VALIDATION_PIPE: 'UUID_VALIDATION_PIPE',
+  ID_PARAM_PIPE: 'ID_PARAM_PIPE',
+  USER_ID_PARAM_PIPE: 'USER_ID_PARAM_PIPE',
+} as const;
