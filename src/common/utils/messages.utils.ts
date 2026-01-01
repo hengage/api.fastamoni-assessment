@@ -68,6 +68,11 @@ export const Msgs = {
       `${field} must be exactly ${length} characters`,
 
     NUMERIC_ONLY: (field: string) => `${field} must contain only numbers`,
+
+    INVALID_UUID: (paramName?: string) =>
+      paramName
+        ? `Invalid UUID format for ${paramName} parameter.`
+        : 'Invalid UUID format provided.',
   },
 
   // Common messages

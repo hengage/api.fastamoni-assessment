@@ -13,8 +13,11 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
+import { HTTP_HEADERS } from 'src/common/constants';
 import { CurrentUserCtx } from 'src/common/decorators/current-user.decorator';
 import { ResponseMessage } from 'src/common/decorators/response.decorator';
+import { IdParamPipe } from 'src/common/pipes/uuid-validation.pipes';
+import { IdempotencyGuard } from 'src/common/services/idempotency/idempotency.guard';
 import { Msgs } from 'src/common/utils/messages.utils';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from '../users/entities/user.entity';
@@ -27,8 +30,6 @@ import {
   MakeDonationResponseDto,
 } from './dto/donation-response.dto';
 import { MakeDonationDto } from './dto/donation.dto';
-import { IdempotencyGuard } from 'src/common/services/idempotency/idempotency.guard';
-import { HTTP_HEADERS } from 'src/common/constants';
 
 @Controller('donations')
 export class DonationsController {
@@ -67,7 +68,7 @@ export class DonationsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: () => GetDonationDetailResponseDto })
-  async getDonationDetails(@Param('id') id: ID) {
+  async getDonationDetails(@Param('id', IdParamPipe) id: string) {
     return this.donationsService.getDonationDetails(id);
   }
 

@@ -8,6 +8,8 @@ import { AuthModule } from './apps/auth/auth.module';
 import { WalletModule } from './apps/wallet/wallet.module';
 import { DonationsModule } from './apps/donations/donations.module';
 import { IdempotencyModule } from './common/services/idempotency/idempotency.module';
+import { throttlerGuard } from './common/guards/throttler.guard';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -21,8 +23,15 @@ import { IdempotencyModule } from './common/services/idempotency/idempotency.mod
     WalletModule,
     DonationsModule,
     IdempotencyModule,
+    throttlerGuard,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: 'APP_GUARD',
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
