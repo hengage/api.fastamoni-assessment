@@ -10,6 +10,7 @@ import { DonationsModule } from './apps/donations/donations.module';
 import { IdempotencyModule } from './common/services/idempotency/idempotency.module';
 import { throttlerGuard } from './common/guards/throttler.guard';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { EmailModule } from './common/services/notifications/email/email.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     WalletModule,
     DonationsModule,
     IdempotencyModule,
+    EmailModule,
     throttlerGuard,
   ],
   controllers: [AppController],
