@@ -18,6 +18,10 @@ const envConfig: Record<EnvironmentKeys, EnvConfig> = {
   [EnvironmentKeys.DATABASE_NAME]: {},
   [EnvironmentKeys.DATABASE_HOST]: {},
   [EnvironmentKeys.ALLOWED_HEADERS]: { type: 'string' },
+  [EnvironmentKeys.BREVO_API_KEY]: { type: 'string' },
+  [EnvironmentKeys.EMAIL_PROVIDER]: { type: 'string' },
+  [EnvironmentKeys.EMAIL_SENDER_EMAIL]: { type: 'string' },
+  [EnvironmentKeys.EMAIL_SENDER_NAME]: { type: 'string' },
 
   // Numbers
   [EnvironmentKeys.PORT]: { type: 'number', fallback: 8080 },
