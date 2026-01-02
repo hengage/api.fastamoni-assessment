@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { DonationStatus } from '../../common/enums';
 import { Msgs } from '../../common/utils/messages.utils';
@@ -12,15 +12,19 @@ import { MakeDonationDto } from './dto/donation.dto';
 import { Donation } from './entities/donation.entity';
 import { CursorPaginationResult } from 'src/common/interfaces/pagination.interface';
 import { IdempotencyService } from 'src/common/services/idempotency/idempotency.service';
+import { EmailService } from 'src/common/services/notifications/email/email.notification';
+import { join } from 'path';
 
 @Injectable()
 export class DonationsService {
+  private readonly logger = new Logger(DonationsService.name);
   constructor(
     private readonly donationsRepo: DonationsRepository,
     private readonly walletService: WalletService,
     private readonly usersService: UsersService,
     private readonly atomicTransaction: AtomicTransactionService,
     private readonly idempotencyService: IdempotencyService,
+    private readonly emailService: EmailService,
   ) {}
 
   async createDonation(
@@ -70,7 +74,7 @@ export class DonationsService {
       );
 
     // Create donation record
-    return this.createDonation(
+    const donation = await this.createDonation(
       {
         donor: { id: donorId },
         beneficiary: { id: beneficiary.id },
@@ -83,6 +87,11 @@ export class DonationsService {
       },
       manager,
     );
+
+    this.handleThankYouForRepeatDonor(donorId, donation, manager).catch(() => {
+      // Silent failure - not letting email issues block the donation
+    });
+    return donation;
   }
 
   private async verifyBeneficiary(
@@ -126,5 +135,66 @@ export class DonationsService {
     filter: DonationsListQueryDto,
   ): Promise<CursorPaginationResult<Donation, 'donations'>> {
     return this.donationsRepo.findAllBy(userId, filter);
+  }
+
+  private async handleThankYouForRepeatDonor(
+    donorId: ID,
+    donation: Donation,
+    manager: EntityManager,
+  ): Promise<void> {
+    const donationCount = await this.donationsRepo.countBy(
+      { donor: { id: donorId } },
+      manager,
+    );
+    if (donationCount >= 2) {
+      const [donor, beneficiary] = await Promise.all([
+        this.usersService.findById(
+          donorId,
+          ['id', 'firstName', 'lastName', 'email'],
+          manager,
+        ),
+        this.usersService.findById(
+          donation.beneficiary.id!,
+          ['id', 'firstName', 'lastName'],
+          manager,
+        ),
+      ]);
+
+      if (!donor) return;
+      this.sendThankYouEmail(donor, beneficiary, donationCount, donation).catch(
+        (error: unknown) => {
+          this.logger.error('Failed to send thank you email for repeat donor', {
+            donorId,
+            donationId: donation.id,
+            error,
+          });
+        },
+      );
+    }
+  }
+
+  private async sendThankYouEmail(
+    donor: User,
+    beneficiary: User,
+    donationCount: number,
+    donation: Donation,
+  ): Promise<void> {
+    await this.emailService.sendEmail({
+      templatePath: join(
+        process.cwd(),
+        'src/templates',
+        'donation-thank-you.ejs',
+      ),
+      templateData: {
+        donorName: `${donor.firstName} ${donor.lastName}`,
+        donationCount,
+        amount: donation.amount,
+        beneficiaryName: `${beneficiary.firstName} ${beneficiary.lastName}`,
+        message: donation.message,
+      },
+      subject: 'Thank You for Your Continued Generosity!',
+      recipientEmail: donor.email,
+      recipientName: `${donor.firstName} ${donor.lastName}`,
+    });
   }
 }

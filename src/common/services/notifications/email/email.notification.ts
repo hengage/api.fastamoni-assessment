@@ -40,16 +40,16 @@ export class EmailService extends BaseEmailService {
 
     const htmlContent = await ejs.renderFile(templatePath, templateData);
 
-    const smtpEmail = new brevo.SendSmtpEmail();
-    smtpEmail.subject = subject;
-    smtpEmail.htmlContent = htmlContent;
-    smtpEmail.sender = {
+    const email = new brevo.SendSmtpEmail();
+    email.subject = subject;
+    email.htmlContent = htmlContent;
+    email.sender = {
       name: ENV.EMAIL_SENDER_NAME as EnvironmentKeys,
       email: ENV.EMAIL_SENDER_EMAIL as EnvironmentKeys,
     };
-    smtpEmail.to = [{ email: recipientEmail, name: recipientName }];
+    email.to = [{ email: recipientEmail, name: recipientName }];
 
-    return await this.sendTransacEmail(smtpEmail);
+    return await this.sendTransacEmail(email);
   }
 
   private readonly EmailHandlersStrategy: Record<
