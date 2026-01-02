@@ -13,6 +13,7 @@ import { Donation } from './entities/donation.entity';
 import { CursorPaginationResult } from 'src/common/interfaces/pagination.interface';
 import { IdempotencyService } from 'src/common/services/idempotency/idempotency.service';
 import { EmailService } from 'src/common/services/notifications/email/email.notification';
+import { join } from 'path';
 
 @Injectable()
 export class DonationsService {
@@ -87,9 +88,8 @@ export class DonationsService {
       manager,
     );
 
-    console.log('Donation processed:', donation.id);
     this.handleThankYouForRepeatDonor(donorId, donation, manager).catch(() => {
-      // Silent failure - don't let email issues block the donation
+      // Silent failure - not letting email issues block the donation
     });
     return donation;
   }
@@ -142,21 +142,26 @@ export class DonationsService {
     donation: Donation,
     manager: EntityManager,
   ): Promise<void> {
-    console.log('sending thank you email');
     const donationCount = await this.donationsRepo.countBy(
       { donor: { id: donorId } },
       manager,
     );
-    console.log('Donation count for donor:', donationCount);
     if (donationCount >= 2) {
-      const donor = await this.usersService.findOneOrNull(
-        { id: donorId },
-        ['id', 'firstName', 'lastName', 'email'],
-        manager,
-      );
+      const [donor, beneficiary] = await Promise.all([
+        this.usersService.findById(
+          donorId,
+          ['id', 'firstName', 'lastName', 'email'],
+          manager,
+        ),
+        this.usersService.findById(
+          donation.beneficiary.id!,
+          ['id', 'firstName', 'lastName'],
+          manager,
+        ),
+      ]);
 
       if (!donor) return;
-      this.sendThankYouEmail(donor, donationCount, donation).catch(
+      this.sendThankYouEmail(donor, beneficiary, donationCount, donation).catch(
         (error: unknown) => {
           this.logger.error('Failed to send thank you email for repeat donor', {
             donorId,
@@ -170,20 +175,24 @@ export class DonationsService {
 
   private async sendThankYouEmail(
     donor: User,
+    beneficiary: User,
     donationCount: number,
     donation: Donation,
   ): Promise<void> {
-    console.log('Sending thank you email to:', donor.email);
     await this.emailService.sendEmail({
-      templatePath: './src/templates/donation-thank-you.ejs',
+      templatePath: join(
+        process.cwd(),
+        'src/templates',
+        'donation-thank-you.ejs',
+      ),
       templateData: {
         donorName: `${donor.firstName} ${donor.lastName}`,
         donationCount,
         amount: donation.amount,
-        beneficiaryName: `${donation.beneficiary.firstName} ${donation.beneficiary.lastName}`,
+        beneficiaryName: `${beneficiary.firstName} ${beneficiary.lastName}`,
         message: donation.message,
       },
-      subject: 'Thank You for Your Continued Generosity! 🙏',
+      subject: 'Thank You for Your Continued Generosity!',
       recipientEmail: donor.email,
       recipientName: `${donor.firstName} ${donor.lastName}`,
     });
