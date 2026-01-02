@@ -48,6 +48,7 @@ export class EmailService extends BaseEmailService {
       email: ENV.EMAIL_SENDER_EMAIL as EnvironmentKeys,
     };
     smtpEmail.to = [{ email: recipientEmail, name: recipientName }];
+    console.log('Email data:', { smtpEmail });
 
     return await this.sendTransacEmail(smtpEmail);
   }

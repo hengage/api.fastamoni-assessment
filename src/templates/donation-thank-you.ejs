@@ -1,0 +1,137 @@
+<!-- src/templates/thank-you-donation.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You for Your Amazing Generosity! 🎉</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #667eea 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header .emoji {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+        .content {
+            padding: 40px;
+        }
+        .donation-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+        .message-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e5e7eb;
+            margin-top: 20px;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer-text {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .highlight {
+            color: #667eea;
+            font-weight: 700;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="emoji">🎉</div>
+            <h1>Thank You for Your Amazing Generosity!</h1>
+        </div>
+        
+        <div class="content">
+            <p>Dear <strong><%= donorName %></strong>,</p>
+            
+            <div class="donation-details">
+                <div class="stat">
+                    <div class="stat-label">Your <span class="highlight"><%= donationCount %></span>th Donation</div>
+                    <div class="stat-value">$<%= amount %></div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">To</div>
+                    <div class="stat-value"><%= beneficiaryName %></div>
+                </div>
+            </div>
+            
+            <% if (message) { %>
+                <div class="message-box">
+                    <p><strong>Your thoughtful message:</strong> "<%= message %>"</p>
+                </div>
+            <% } %>
+            
+            <p>Your continued support makes a <strong>real difference</strong> in people's lives. We're incredibly honored to have you as part of the FastAMoni community!</p>
+        </div>
+        
+        <div class="footer">
+            <p class="footer-text">
+                With deep gratitude and appreciation,<br>
+                <strong>The FastAMoni Team 🙏</strong>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
