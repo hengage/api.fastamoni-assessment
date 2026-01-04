@@ -17,5 +17,4 @@ COPY . .
 # Expose port
 EXPOSE 3001
 
-# Default command
-CMD ["pnpm", "start"]
+CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"development\" ]; then pnpm start:dev; else pnpm start; fi"]
