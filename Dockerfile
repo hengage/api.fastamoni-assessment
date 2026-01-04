@@ -17,7 +17,10 @@ COPY . .
 # Build the application
 RUN pnpm build
 
+# Verify the build output exists
+RUN ls -la dist/
+
 # Expose port
 EXPOSE 3001
 
-CMD ["sh", "-c", "pnpm migration:run && pnpm start:prod"]
+CMD ["sh", "-c", "pnpm migration:run && node dist/src/main.js"]
