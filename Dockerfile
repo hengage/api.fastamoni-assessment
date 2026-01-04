@@ -23,4 +23,4 @@ RUN pnpm migration:run
 # Expose port
 EXPOSE 3001
 
-CMD ["pnpm", "start"]
+CMD ["sh", "-c", "pnpm migration:run && pnpm start"]
