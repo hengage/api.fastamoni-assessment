@@ -15,7 +15,7 @@ RUN pnpm install
 COPY . .
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3001
 
 # Default command
-CMD ["pnpm", "start:dev"]
+CMD ["pnpm", "start"]
