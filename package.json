@@ -26,7 +26,6 @@
     "docker:mg": "docker-compose run app pnpm migration:generate",
     "docker:mr": "docker-compose run app pnpm migration:run",
     "docker:mrevert": "docker-compose run app pnpm migration:revert",
-    "postbuild": "pnpm migration:run",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
