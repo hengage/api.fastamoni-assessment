@@ -28,9 +28,7 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.setGlobalPrefix('api');
 
-  if (ENV.NODE_ENV === 'development') {
-    setupSwagger(app);
-  }
+  setupSwagger(app);
 
   await app.listen(ENV.PORT as EnvironmentKeys);
 }
